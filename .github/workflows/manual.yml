@@ -8,11 +8,11 @@ on:
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
-      name:
-        # Friendly description to be shown in the UI instead of 'name'
-        description: 'Person to greet'
+      version:
+        # Version of trunk to use
+        description: 'Trunk Version'
         # Default value if no value is explicitly provided
-        default: 'World'
+        default: '0.16.0'
         # Input has to be provided for the workflow to run
         required: true
 
@@ -25,6 +25,11 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+    - uses: actions/checkout@v3
     # Runs a single command using the runners shell
     - name: Send greeting
-      run: echo "Hello ${{ github.event.inputs.name }}"
+      run: |
+        echo "Using version ${{ github.event.inputs.version }} of trunk",
+        wget -qO- https://github.com/thedodd/trunk/releases/download/${{ github.event.inputs.version }}/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-,
+        trunk build --release
+        
