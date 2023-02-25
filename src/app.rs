@@ -1,33 +1,38 @@
 use egui::*;
-use poll_promise::Promise;
+
+mod user;
 
 mod images;
 mod shortcuts;
 mod menubar;
+mod loader;
 
 // Otherwise web compilation will complain about shutdown being unused
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct App {
-    text: String,
+	text: String,
+
+	current_user: user::CurrentUser,
 
 	#[serde(skip)]
-	images: images::Images,
+	images: images::OptionalImage,
 
 	#[serde(skip)]
 	shortcuts: shortcuts::Shortcuts,
 
 	#[serde(skip)]
-	load_promise: Option<Promise<Result<Vec<u8>, &'static str>>>,
+	loader: loader::Loader,
 }
 
 impl Default for App {
     fn default() -> Self {
         Self {
 			text: "Test".to_string(),
-			images: images::Images::default(),
+			current_user: user::CurrentUser::Empty(user::NewUser::default()),
+			images: images::OptionalImage::default(),
             shortcuts: shortcuts::Shortcuts::default(),
-			load_promise: None,
+			loader: loader::Loader::default(),
 		}
     }
 }
@@ -51,18 +56,30 @@ impl eframe::App for App {
 
     fn update(&mut self, ctx: &Context, frame: &mut eframe::Frame) {
 		// Check ongoing promise and handle result
-		if let Some(promise) = &self.load_promise {
+		if let Some(promise) = &self.loader.load_promise {
 
 			if let Some(result) = promise.ready() {
 
-				if let Ok(raw_file) = result {
-					self.images.load_image_from_raw(ctx, raw_file.to_vec());
+				if let Ok((usage, raw_file)) = result {
+					match usage {
+
+						loader::FileUsage::ProfilePicture => {
+							match &mut self.current_user {
+								user::CurrentUser::LoggedIn(user) => {
+									user.update_profile_picture(ctx, raw_file.to_vec())
+								},
+								_ => todo!(),
+								}
+							}
+						_ => {
+							self.images.load_image_from_raw(ctx, raw_file.to_vec())
+							},
+					}
 				}
 
-				self.load_promise = None;
+				self.loader.load_promise = None;
 			}
 		}
-
 		// Handle shortcut inputs
 		ctx.input_mut(|i| {
 			// Cannot shutdown web application
