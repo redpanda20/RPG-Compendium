@@ -1,44 +1,49 @@
 use poll_promise::Promise;
+use rfd::FileHandle;
 
 pub struct Loader {
-	pub load_promise: Option<Promise<Result<(FileUsage, Vec<u8>), &'static str>>>,
+	pub promises: Vec<Option<Promise<(FileUsage, Vec<u8>)>>>,
+	// pub load_promise: Option<Promise<Result<(FileUsage, Vec<u8>), &'static str>>>,
 }
 
 impl Default for Loader {
     fn default() -> Self {
-        Self { load_promise: None }
+        Self { promises: Vec::new() }
     }
 }
 
 pub enum FileUsage {
 	ProfilePicture,
-	_GeneralImage,
+	Error
 }
 
-pub async fn async_load_file(usage: FileUsage) -> Result<(FileUsage, Vec<u8>), &'static str>{
-
+pub async fn async_file_dialog(usage: FileUsage) -> (FileUsage, Vec<u8>) {
 	let dialog = rfd::AsyncFileDialog::new();
-
 	let optional_file = dialog.pick_file().await;
 
 	if let Some(file) = optional_file {
 		let raw_file = file.read().await;
-		return Ok((usage, raw_file))
+		return (usage, raw_file)	
 	}
-	return Err("Could not retrieve file")
+	return (FileUsage::Error, Vec::new())
+
 }
 
 impl Loader{
-	pub fn load_as(&mut self, usage: FileUsage) {
+	pub fn file_dialog(&mut self, usage: FileUsage) {
 		#[cfg(not(target_arch = "wasm32"))]
-		let promise = Some(poll_promise::Promise::from_ready(
-			async_std::task::block_on(async_load_file(usage))
+		let promise: Option<Promise<(FileUsage, std::vec::Vec<u8>)>> = Some(Promise::from_ready(
+			async_std::task::block_on(async_file_dialog(usage))
 		));
 	
 		#[cfg(target_arch = "wasm32")]
-		let promise = Some(poll_promise::Promise::spawn_async(async_load_file(usage)));
+		let promise = Some(poll_promise::Promise::spawn_async(async_file_dialog(usage)));
 	
 		// Hand promise to parent
-		self.load_promise = promise
+		self.promises.push(promise);
+	}
+
+	pub fn load_from(&mut self, usage: FileUsage, file: FileHandle) {
+
 	}
 } 

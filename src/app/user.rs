@@ -67,14 +67,11 @@ impl User {
 	pub fn is_user_logged_in(&self) -> bool {
 		return self.is_logged_in
 	}
-	pub fn get_profile_picture(&mut self, ctx: &egui::Context) -> (egui::TextureId, egui::Vec2) {
+	pub fn get_profile_picture(&mut self, ctx: &egui::Context) -> Option<(egui::TextureId, egui::Vec2)> {
 		if let Some((id, size)) = self.profile_image.get_id_size(ctx) {
-			(id, size)
+			Some((id, size))
 		} else {
-			super::images::StaticSvg::new(
-				String::from("no_image"),
-				include_bytes!("include\\no_image.svg").to_vec(),
-				).get(ctx, ctx.style().visuals.dark_mode)
+			None
 		}
 	}
 	pub fn update_profile_picture(&mut self, ctx: &egui::Context, raw_file: Vec<u8>) {

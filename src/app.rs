@@ -16,7 +16,7 @@ pub struct App {
 	current_user: user::CurrentUser,
 
 	#[serde(skip)]
-	images: images::OptionalImage,
+	images: images::ImageBytes,
 
 	#[serde(skip)]
 	shortcuts: shortcuts::Shortcuts,
@@ -30,8 +30,9 @@ impl Default for App {
         Self {
 			text: "Test".to_string(),
 			current_user: user::CurrentUser::Empty(user::NewUser::default()),
-			images: images::OptionalImage::default(),
-            shortcuts: shortcuts::Shortcuts::default(),
+
+			images: images::ImageBytes::default(),
+			shortcuts: shortcuts::Shortcuts::default(),
 			loader: loader::Loader::default(),
 		}
     }
@@ -56,28 +57,23 @@ impl eframe::App for App {
 
     fn update(&mut self, ctx: &Context, frame: &mut eframe::Frame) {
 		// Check ongoing promise and handle result
-		if let Some(promise) = &self.loader.load_promise {
+		for option in &mut self.loader.promises {
 
-			if let Some(result) = promise.ready() {
+			if let Some(promise) = option {
+				if let Some((file_usage, file_raw)) = promise.ready() {
 
-				if let Ok((usage, raw_file)) = result {
-					match usage {
+					match file_usage {
 
 						loader::FileUsage::ProfilePicture => {
-							match &mut self.current_user {
-								user::CurrentUser::LoggedIn(user) => {
-									user.update_profile_picture(ctx, raw_file.to_vec())
-								},
-								_ => todo!(),
-								}
+							if let user::CurrentUser::LoggedIn(user) = &mut self.current_user {
+								user.update_profile_picture(ctx, file_raw.to_vec());
 							}
-						_ => {
-							self.images.load_image_from_raw(ctx, raw_file.to_vec())
-							},
+						},
+
+						loader::FileUsage::Error => (),
+
 					}
 				}
-
-				self.loader.load_promise = None;
 			}
 		}
 		// Handle shortcut inputs

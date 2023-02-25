@@ -1,3 +1,5 @@
+use super::images;
+
 pub fn show_menu_bar(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Frame) -> egui::InnerResponse<()> {
 
 	let response =
@@ -34,7 +36,7 @@ pub fn show_menu_bar(parent: &mut super::App, ctx: &egui::Context, frame: &mut e
 
 				).clicked() {
 
-					parent.loader.load_as(super::loader::FileUsage::ProfilePicture);
+					parent.loader.file_dialog(super::loader::FileUsage::ProfilePicture);
 
 					ui.close_menu();
 				}					
@@ -45,12 +47,15 @@ pub fn show_menu_bar(parent: &mut super::App, ctx: &egui::Context, frame: &mut e
 
 				let has_account = super::images::StaticSvg::new(
 					String::from("has_account"),
-					include_bytes!("include\\account.svg").to_vec(),
+					parent.images.account.clone(),
+					// std::fs::read("assets\\account.svg").unwrap(),
+
 					);
 
 				let no_account = super::images::StaticSvg::new(
 					String::from("no_account"),
-					include_bytes!("include\\account_none.svg").to_vec(),
+					parent.images.account_none.clone(),
+					// std::fs::read("assets\\account_none.svg").unwrap(),
 					);
 
 				let (id, size) = match &mut parent.current_user {
@@ -70,14 +75,19 @@ pub fn show_menu_bar(parent: &mut super::App, ctx: &egui::Context, frame: &mut e
 								ui.label(user.username.clone());
 								ui.label(egui::RichText::new("Currently logged in").weak());
 
-								let (id, size) = user.get_profile_picture(ctx);
+								let (id, size) = user.get_profile_picture(ctx).unwrap_or_else( ||
+									images::StaticSvg::new(
+										String::from("no profile picture"),
+										parent.images.no_profile_picture.clone())
+									.get(ctx, ctx.style().visuals.dark_mode)
+								);
 
 								if ui.add(
 									egui::widgets::ImageButton::new(id, size)
 								)
 								.on_hover_text("Double click to edit")
 								.double_clicked() {
-									parent.loader.load_as(super::loader::FileUsage::ProfilePicture);
+									parent.loader.file_dialog(super::loader::FileUsage::ProfilePicture);
 								};
 
 								if ui.add(
@@ -107,13 +117,13 @@ pub fn show_menu_bar(parent: &mut super::App, ctx: &egui::Context, frame: &mut e
 						},
 					}
 				});
+
 				let light_dark_toggle = super::images::StaticSvg::new_precalculated(
 					String::from("light-dark-toggle"),
-					include_bytes!("include\\toggle_on.svg").to_vec(),
-					include_bytes!("include\\toggle_off.svg").to_vec(),
-					// std::fs::read("assets\\toggle_off.svg").unwrap(),
-
-					
+						parent.images.toggle_off.clone(),
+						parent.images.toggle_on.clone(),
+					// std::fs::read("assets\\toggle_off_FILL0.svg").unwrap(),
+					// std::fs::read("assets\\toggle_on_FILL1.svg").unwrap(),	
 				);
 				let (button_id, size) = light_dark_toggle.get(ctx, ctx.style().visuals.dark_mode);
 
