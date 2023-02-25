@@ -1,0 +1,33 @@
+name: Rust
+
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      version:
+        # Version of trunk to use
+        description: 'Trunk Version'
+        # Default value if no value is explicitly provided
+        default: '0.16.0'
+        # Input has to be provided for the workflow to run
+        required: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build
+      run: cargo build --verbose
+      
+    - name: Run tests
+      run: cargo test --verbose
+      
+    - name: Build trunk
+      run: trunk build
