@@ -1,9 +1,8 @@
 {
 	"name": "Web App with Memory",
 	"short_name": "web_app",
+	"start_url" : "/index.html",
 	"lang": "en-US",
-	"id": "/index.html",
-	"start_url": "./index.html",
 	"display": "standalone",
 	"background_color": "black",
 	"theme_color": "black"
