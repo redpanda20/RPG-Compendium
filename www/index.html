@@ -1,0 +1,85 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<!-- Disable zooming -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+
+    <title>Web app with memory</title>
+
+    <link rel="icon" href="https://redpanda20.github.io/RPG-Compendium/favicon-6f3c7d9894b405e1.png">
+    
+
+    <base href="https://redpanda20.github.io/RPG-Compendium/">
+
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="white">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#404040">
+
+  <style>
+    html {
+        /* Remove touch delay: */
+        touch-action: manipulation;
+    }
+
+    body {
+        /* Light mode background color for what is not covered by the egui canvas,
+        or where the egui canvas is translucent. */
+        background: #909090;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        body {
+            /* Dark mode background color for what is not covered by the egui canvas,
+            or where the egui canvas is translucent. */
+            background: #404040;
+        }
+    }
+
+    /* Allow canvas to fill entire web page: */
+    html,
+    body {
+        overflow: hidden;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100%;
+        width: 100%;
+    }
+
+    /* Position canvas in center-top: */
+    canvas {
+        margin-right: auto;
+        margin-left: auto;
+        display: block;
+        position: absolute;
+        top: 0%;
+        left: 50%;
+        transform: translate(-50%, 0%);
+    }
+
+    .centered {
+        margin-right: auto;
+        margin-left: auto;
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #f0f0f0;
+        font-size: 24px;
+        font-family: Ubuntu-Light, Helvetica, sans-serif;
+        text-align: center;
+    }
+  </style>
+
+<link rel="preload" href="https://redpanda20.github.io/RPG-Compendium/web-app-125ae8eb0f169d1d_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+<link rel="modulepreload" href="https://redpanda20.github.io/RPG-Compendium/web-app-125ae8eb0f169d1d.js"></head>
+
+<body>
+    <!-- The WASM code will resize the canvas dynamically -->
+    <!-- the id is hardcoded in main.rs . so, make sure both match. -->
+    <canvas id="the_canvas_id"></canvas>
+
+
+
+
+
+<script type="module">import init from 'https://redpanda20.github.io/RPG-Compendium/web-app-125ae8eb0f169d1d.js';init('https://redpanda20.github.io/RPG-Compendium/web-app-125ae8eb0f169d1d_bg.wasm');</script></body></html><!-- Powered by egui: https://github.com/emilk/egui/ -->
