@@ -23,8 +23,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Build trunk
-      run: trunk build
+    - name: Install Trunk
+      run: cargo install trunk
+    
+    - name: Build with trunk
+      run: trunk -v build
     
     - name: Build
       run: cargo build --verbose
