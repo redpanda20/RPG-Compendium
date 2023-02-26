@@ -1,3 +1,4 @@
 [build]
-public_url = "https://redpanda20.github.io/RPG-Compendium/"
-dist = "www"
+filehash = false
+# public_url = "https://redpanda20.github.io/RPG-Compendium/"
+dist = "site"
