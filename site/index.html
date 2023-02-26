@@ -7,12 +7,12 @@
     <title>RPG Compendium</title>
 
     <!-- Optimise wasm code -->
-    <script type="module">import init from 'https://redpanda20.github.io/RPG-Compendium/web-app.js';init('https://redpanda20.github.io/RPG-Compendium/web-app_bg.wasm');</script>
+    <script type="module">import init from '/web-app.js';init('/web-app_bg.wasm');</script>
 
     <!-- Base url. local: "/", github: "https://redpanda20.github.io/RPG-Compendium/" -->
-    <base href="https://redpanda20.github.io/RPG-Compendium/">
+    <base href="/">
 
-    <link rel="icon" href="https://redpanda20.github.io/RPG-Compendium/favicon.png">
+    <link rel="icon" href="/icons-vector.svg">
 
     
     
@@ -82,19 +82,16 @@
     }
   </style>
 
-<link rel="preload" href="https://redpanda20.github.io/RPG-Compendium/web-app_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
-<link rel="modulepreload" href="https://redpanda20.github.io/RPG-Compendium/web-app.js"></head>
+<link rel="preload" href="/web-app_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+<link rel="modulepreload" href="/web-app.js"></head>
 
 <body>
     <!-- The WASM code will resize the canvas dynamically -->
-    <!-- the id is hardcoded in main.rs . so, make sure both match. -->
     <canvas id="the_canvas_id"></canvas>
 
     <!--Register Service Worker. this will cache the wasm / js scripts for offline use (for PWA functionality). -->
-    <!-- Force refresh (Ctrl + F5) to load the latest files instead of cached files  -->
     <script>
-        // We disable caching during development so that we always view the latest version.
-        if ('serviceWorker' in navigator && window.location.hash !== "#dev") {
+        if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register('sw.js');
             });
@@ -104,4 +101,31 @@
 
 
 
-</body></html><!-- Powered by egui: https://github.com/emilk/egui/ -->
+<script>(function () {
+    var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    var url = protocol + '//' + window.location.host + '/_trunk/ws';
+    var poll_interval = 5000;
+    var reload_upon_connect = () => {
+        window.setTimeout(
+            () => {
+                // when we successfully reconnect, we'll force a
+                // reload (since we presumably lost connection to
+                // trunk due to it being killed, so it will have
+                // rebuilt on restart)
+                var ws = new WebSocket(url);
+                ws.onopen = () => window.location.reload();
+                ws.onclose = reload_upon_connect;
+            },
+            poll_interval);
+    };
+
+    var ws = new WebSocket(url);
+    ws.onmessage = (ev) => {
+        const msg = JSON.parse(ev.data);
+        if (msg.reload) {
+            window.location.reload();
+        }
+    };
+    ws.onclose = reload_upon_connect;
+})()
+</script></body></html><!-- Powered by egui: https://github.com/emilk/egui/ -->

@@ -14,7 +14,7 @@
     <!-- Base url. local: "/", github: "https://redpanda20.github.io/RPG-Compendium/" -->
     <base data-trunk-public-url/>
 
-    <link data-trunk rel="icon" href="assets/favicon.png"/>
+    <link data-trunk rel="icon" href="assets/icons-vector.svg"/>
 
     <link data-trunk rel="copy-file" href="assets/sw.js" />
     <link data-trunk rel="copy-file" href="assets/manifest.json"/>
@@ -87,14 +87,11 @@
 
 <body>
     <!-- The WASM code will resize the canvas dynamically -->
-    <!-- the id is hardcoded in main.rs . so, make sure both match. -->
     <canvas id="the_canvas_id"></canvas>
 
     <!--Register Service Worker. this will cache the wasm / js scripts for offline use (for PWA functionality). -->
-    <!-- Force refresh (Ctrl + F5) to load the latest files instead of cached files  -->
     <script>
-        // We disable caching during development so that we always view the latest version.
-        if ('serviceWorker' in navigator && window.location.hash !== "#dev") {
+        if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register('sw.js');
             });
