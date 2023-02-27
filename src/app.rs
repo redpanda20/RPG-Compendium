@@ -48,12 +48,10 @@ impl Default for App {
 impl App {
 	pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
 
-		if let Some(storage) = cc.storage {
-			return eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default()
-		}
-
-
-		Self::default()
+		let Some(storage) = cc.storage else {
+			return Self::default()
+		};
+		eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default()
 	}
 }
 
@@ -66,20 +64,21 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &Context, frame: &mut eframe::Frame) {
 		// Check ongoing promise and handle result
 		for option in &mut self.loader.promises {
-			if let Some(promise) = option {
-				if let Some((file_usage, file_raw)) = promise.ready() {
-					match file_usage {
-
-						loader::FileUsage::ProfilePicture => {
+			let Some(promise) = option else {
+				break;
+			};
+			let Some((file_usage, file_raw)) = promise.ready() else {
+				break;
+			};
+			match file_usage {
+				loader::FileUsage::ProfilePicture => {
 							if self.current_user.is_mutable() && self.current_user.is_logged_in() {
 								self.current_user.update_profile_picture(ctx, file_raw.to_vec());
 							}
 						},
 
 						loader::FileUsage::Error => (),
-					}
-				}
-			}
+			};
 		}
 		// Handle shortcut inputs
 		ctx.input_mut(|i| {

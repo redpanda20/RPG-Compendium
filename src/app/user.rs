@@ -60,11 +60,10 @@ impl User {
 		return self.is_mutable
 	}
 	pub fn get_profile_picture(&mut self) -> Option<(egui::TextureId, egui::Vec2)> {
-		if let Some((id, size)) = self.profile_image.get() {
-			Some((id, size))
-		} else {
-			None
-		}
+		let Some((id, size)) = self.profile_image.get() else {
+			return None
+		};
+		return Some((id, size))
 	}
 	pub fn update_profile_picture(&mut self, ctx: &egui::Context, raw_file: Vec<u8>) {
 		if self.is_logged_in {

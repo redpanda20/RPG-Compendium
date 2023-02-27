@@ -20,12 +20,11 @@ pub async fn async_file_dialog(usage: FileUsage) -> (FileUsage, Vec<u8>) {
 	let dialog = rfd::AsyncFileDialog::new();
 	let optional_file = dialog.pick_file().await;
 
-	if let Some(file) = optional_file {
-		let raw_file = file.read().await;
-		return (usage, raw_file)	
-	}
-	return (FileUsage::Error, Vec::new())
-
+	let Some(file) = optional_file else {
+		return (FileUsage::Error, Vec::new())
+	};
+	let raw_file = file.read().await;
+	return (usage, raw_file)	
 }
 
 impl Loader{

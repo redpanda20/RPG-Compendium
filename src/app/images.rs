@@ -15,24 +15,25 @@ impl OptionalImage {
 	
 	fn update(&mut self, ctx: &egui::Context, image: impl Into<egui::ImageData>) {
 
-		if let Some(handle) = self.profile_picture.as_mut() {
-			handle.set(
-					image,
-					Default::default());
-		} else {
+		let Some(handle) = self.profile_picture.as_mut() else {
 			self.profile_picture = Some(ctx.load_texture(
-				"Profile Picture",
+				"Profile picture",
 				image,
-				Default::default()));
-		}
+				Default::default()
+			));
+			return;
+		};
+		handle.set(
+			image,
+			Default::default()
+		);
 	}
 
 	pub fn get(&mut self) -> Option<(egui::TextureId, egui::Vec2)> {
-		if let Some(profile) = self.profile_picture.clone() {
-			Some((profile.id(), profile.size_vec2()))
-		} else {
-			None
-		}
+		let Some(profile) = self.profile_picture.clone() else {
+			return None
+		};
+		return Some((profile.id(), profile.size_vec2()))
 	}
 
 	pub fn _get_picture(&mut self, ctx: &egui::Context) -> egui::TextureHandle {
@@ -52,16 +53,16 @@ impl OptionalImage {
 			.decode();
 
 		// Handle errors
-		if let Ok(image) = result {
-			let size = [image.width() as _, image.height() as _];
-			let image_buffer = image.to_rgba8();
-			let pixels = image_buffer.as_flat_samples();
-	
-			let color_image = egui::ColorImage::from_rgba_unmultiplied(size, pixels.as_slice());
-			
-			self.update(ctx, color_image);
-		}
-	
+		let Ok(image) = result else {
+			return;
+		};
+		let size = [image.width() as _, image.height() as _];
+		let image_buffer = image.to_rgba8();
+		let pixels = image_buffer.as_flat_samples();
+
+		let color_image = egui::ColorImage::from_rgba_unmultiplied(size, pixels.as_slice());
+		
+		self.update(ctx, color_image);
 	}
 }
 

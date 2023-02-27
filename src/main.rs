@@ -5,7 +5,7 @@ pub use app::App;
 #[cfg(not(target_arch = "wasm32"))]
 fn main() -> Result<(), eframe::Error> {
     let image: image::DynamicImage = image::io::Reader::open(
-        std::path::Path::new("assets\\icons-192.png"))
+        std::path::Path::new("assets/icons-192.png"))
         .unwrap()
 		.decode().unwrap();
     let width = image.width();
