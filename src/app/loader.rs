@@ -1,5 +1,4 @@
 use poll_promise::Promise;
-use rfd::FileHandle;
 
 pub struct Loader {
 	pub promises: Vec<Option<Promise<(FileUsage, Vec<u8>)>>>,
@@ -43,7 +42,4 @@ impl Loader{
 		self.promises.push(promise);
 	}
 
-	pub fn load_from(&mut self, usage: FileUsage, file: FileHandle) {
-
-	}
 } 

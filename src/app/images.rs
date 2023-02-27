@@ -1,8 +1,8 @@
 // Stores single copy of picture that can be referenced elsewhere
+#[derive(Clone)]
 pub struct OptionalImage {
 	pub profile_picture: Option<egui::TextureHandle>,
 }
-
 impl Default for OptionalImage {
 	
 	fn default() -> Self {
@@ -11,7 +11,6 @@ impl Default for OptionalImage {
 		}
 	}
 }
-
 impl OptionalImage {
 	
 	fn update(&mut self, ctx: &egui::Context, image: impl Into<egui::ImageData>) {
@@ -28,7 +27,7 @@ impl OptionalImage {
 		}
 	}
 
-	pub fn get_id_size(&mut self, ctx: &egui::Context) -> Option<(egui::TextureId, egui::Vec2)> {
+	pub fn get(&mut self) -> Option<(egui::TextureId, egui::Vec2)> {
 		if let Some(profile) = self.profile_picture.clone() {
 			Some((profile.id(), profile.size_vec2()))
 		} else {
@@ -36,7 +35,7 @@ impl OptionalImage {
 		}
 	}
 
-	pub fn get_picture(&mut self, ctx: &egui::Context) -> egui::TextureHandle {
+	pub fn _get_picture(&mut self, ctx: &egui::Context) -> egui::TextureHandle {
 		if self.profile_picture.is_none() {
 			self.update(ctx, egui::ColorImage::new([32, 32], egui::Color32::RED))
 
@@ -65,6 +64,7 @@ impl OptionalImage {
 	
 	}
 }
+
 pub struct StaticSvg {
 	white_fill: egui_extras::RetainedImage,
 	black_fill: egui_extras::RetainedImage, 
@@ -80,6 +80,7 @@ impl StaticSvg {
 	}
 
 	pub fn new(name: String, img_bytes: Vec<u8>) -> Self {
+		const ICON_SIZE: egui_extras::image::FitTo = egui_extras::image::FitTo::Height(24);
 
 		// Get position of first '>'
 		let (index, _) = img_bytes.clone().iter().enumerate().find(|(_, b)| **b == b'>').unwrap();
@@ -96,8 +97,30 @@ impl StaticSvg {
 		black_name.push_str("_white");
 
 		return Self {
-			white_fill: egui_extras::RetainedImage::from_svg_bytes(white_name, &white_bytes).unwrap(),
-			black_fill: egui_extras::RetainedImage::from_svg_bytes(black_name, &black_bytes).unwrap(),
+			white_fill: egui_extras::RetainedImage::from_svg_bytes_with_size(white_name, &white_bytes, ICON_SIZE).unwrap(),
+			black_fill: egui_extras::RetainedImage::from_svg_bytes_with_size(black_name, &black_bytes, ICON_SIZE).unwrap(),
+			};
+	}
+
+	pub fn new_with_size(name: String, img_bytes: Vec<u8>, size: [u32; 2]) -> Self {
+		let icon_size = egui_extras::image::FitTo::Size(size[0], size[1]);
+		// Get position of first '>'
+		let (index, _) = img_bytes.clone().iter().enumerate().find(|(_, b)| **b == b'>').unwrap();
+		// Split into left and right at position
+		let (left, right) = img_bytes.split_at(index);
+		let white_bytes = [left, br##" fill="#FFFFFF""##, right].concat();
+		
+		let mut white_name = name.clone();
+		white_name.push_str("_black");
+
+		// Calculate white image
+		let black_bytes = img_bytes.clone();
+		let mut black_name = name.clone();
+		black_name.push_str("_white");
+
+		return Self {
+			white_fill: egui_extras::RetainedImage::from_svg_bytes_with_size(white_name, &white_bytes, icon_size).unwrap(),
+			black_fill: egui_extras::RetainedImage::from_svg_bytes_with_size(black_name, &black_bytes, icon_size).unwrap(),
 			};
 	}
 
@@ -114,15 +137,6 @@ impl StaticSvg {
 			};
 	}
 
-
-	pub fn show(&self, ui: &mut egui::Ui, is_dark_mode: bool) -> egui::Response {
-		if is_dark_mode {
-			self.white_fill.show(ui)
-		} else {
-			self.black_fill.show(ui)
-		}
-	}
-
 	pub fn get(&self, ctx: &egui::Context) -> (egui::TextureId, egui::Vec2) {
 		if ctx.style().visuals.dark_mode {
 			(self.white_fill.texture_id(ctx), self.white_fill.size_vec2())
@@ -131,33 +145,21 @@ impl StaticSvg {
 		}
 	}
 }
-pub struct ImageBytes {
-	pub account: Vec<u8>,
-	pub no_profile_picture: Vec<u8>,
-	pub toggle_off: Vec<u8>,
-	pub toggle_on: Vec<u8>,
-	pub more_vert: Vec<u8>,
-	pub home: Vec<u8>,
-}
-
-impl Default for ImageBytes {
-    fn default() -> Self {
-        Self { 
-			account:
-			br##"<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 96 960 960" width="48"><path d="M226 794q59-39.666 121-60.833T480 712q71 0 133.333 21.167Q675.667 754.334 734.667 794q41-49.667 59.833-103.667 18.834-54 18.834-114.333 0-141-96.167-237.167T480 242.666q-141 0-237.167 96.167T146.666 576q0 60.333 19.167 114.333T226 794Zm253.876-184.667q-58.209 0-98.043-39.957Q342 529.419 342 471.209q0-58.209 39.957-98.042 39.958-39.834 98.167-39.834t98.043 39.958Q618 413.248 618 471.457q0 58.21-39.957 98.043-39.958 39.833-98.167 39.833ZM479.73 976q-83.097 0-156.183-31.5t-127.15-85.833q-54.064-54.334-85.23-127.227Q80 658.546 80 575.667q0-82.88 31.5-155.773Q143 347 197.333 293q54.334-54 127.227-85.5Q397.454 176 480.333 176q82.88 0 155.773 31.5Q709 239 763 293t85.5 127Q880 493 880 575.823q0 82.822-31.5 155.666T763 858.667Q709 913 635.914 944.5T479.73 976Z"/></svg>"##.to_vec(),
-			no_profile_picture:
-			br##"<svg xmlns="http://www.w3.org/2000/svg" height="128" viewBox="0 96 960 960" width="128"><path d="M215.384 909q-27.782 0-48.083-20.301T147 840.616V311.384q0-27.782 20.301-48.083T215.384 243h529.232q27.782 0 48.083 20.301T813 311.384v529.232q0 27.782-20.301 48.083T744.616 909H215.384Zm0-43.769h529.232q9.23 0 16.923-7.692 7.692-7.693 7.692-16.923V311.384q0-9.23-7.692-16.923-7.693-7.692-16.923-7.692H215.384q-9.23 0-16.923 7.692-7.692 7.693-7.692 16.923v529.232q0 9.23 7.692 16.923 7.693 7.692 16.923 7.692Zm73.923-99.769h388.539L557.462 605.384 446.769 744.539l-72.461-88.77-85.001 109.693Zm-98.538 99.769V286.769v578.462Z"/></svg>"##.to_vec(),
-
-			toggle_off: 
-			br##"<svg xmlns="http://www.w3.org/2000/svg" height="36" viewBox="0 96 960 960" width="48" fill="#FFFFFF"><path d="M278 791q-89.583 0-152.292-62.707Q63 665.586 63 576.005q0-89.582 62.708-152.294Q188.417 361 278 361h404q89.583 0 152.292 62.707Q897 486.414 897 575.995q0 89.582-62.708 152.294Q771.583 791 682 791H278Zm.286-43.769H682q70.208 0 120.719-49.961 50.512-49.961 50.512-121.395 0-71.435-50.512-121.27Q752.208 404.769 682 404.769H278.286q-71.501 0-121.509 49.925-50.008 49.924-50.008 121.307 0 71.384 50.008 121.307t121.509 49.923ZM277.828 680q43.678 0 73.81-30.1 30.131-30.099 30.131-73.868 0-43.769-30.099-73.901Q321.57 472 277.891 472q-43.678 0-74.285 30.1Q173 532.199 173 575.968q0 43.769 30.575 73.901Q234.15 680 277.828 680ZM480 576Z"/></svg>"##.to_vec(),
-			toggle_on:
-			br##"<svg xmlns="http://www.w3.org/2000/svg" height="36" viewBox="0 96 960 960" width="48"><path d="M278 791q-89.583 0-152.292-62.707Q63 665.586 63 576.005q0-89.582 62.708-152.294Q188.417 361 278 361h404q89.583 0 152.292 62.707Q897 486.414 897 575.995q0 89.582-62.708 152.294Q771.583 791 682 791H278Zm404.109-111q43.678 0 74.285-30.1Q787 619.801 787 576.032q0-43.769-30.575-73.901Q725.85 472 682.172 472t-73.81 30.1q-30.131 30.099-30.131 73.868 0 43.769 30.099 73.901Q638.43 680 682.109 680Z"/></svg>"##.to_vec(),
-		
-			more_vert:
-			br##"<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 96 960 960" width="36"><path d="M479.858 896Q460 896 446 881.858q-14-14.141-14-34Q432 828 446.142 814q14.141-14 34-14Q500 800 514 814.142q14 14.141 14 34Q528 868 513.858 882q-14.141 14-34 14Zm0-272Q460 624 446 609.858q-14-14.141-14-34Q432 556 446.142 542q14.141-14 34-14Q500 528 514 542.142q14 14.141 14 34Q528 596 513.858 610q-14.141 14-34 14Zm0-272Q460 352 446 337.858q-14-14.141-14-34Q432 284 446.142 270q14.141-14 34-14Q500 256 514 270.142q14 14.141 14 34Q528 324 513.858 338q-14.141 14-34 14Z"/></svg>"##.to_vec(),
-
-			home:
-			br##"<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 96 960 960" width="48"><path d="M160 936V456l320-240 320 240v480H560V656H400v280H160Z"/></svg>"##.to_vec(),
-		}
-    }
-}
+pub const NO_IMAGE: &[u8] =
+br##"<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>"##;
+pub const ACCOUNT: &[u8] =
+br##"<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px"><g><rect fill="none" height="24" width="24"/></g><g><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z"/></g></svg>"##;
+pub const _PERSON_OFF: &[u8] =
+br##"<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><rect fill="none" height="24" width="24"/><path d="M20,17.17l-3.37-3.38c0.64,0.22,1.23,0.48,1.77,0.76C19.37,15.06,19.98,16.07,20,17.17z M21.19,21.19l-1.41,1.41L17.17,20H4 v-2.78c0-1.12,0.61-2.15,1.61-2.66c1.29-0.66,2.87-1.22,4.67-1.45L1.39,4.22l1.41-1.41L21.19,21.19z M15.17,18l-3-3 c-0.06,0-0.11,0-0.17,0c-2.37,0-4.29,0.73-5.48,1.34C6.2,16.5,6,16.84,6,17.22V18H15.17z M12,6c1.1,0,2,0.9,2,2 c0,0.86-0.54,1.59-1.3,1.87l1.48,1.48C15.28,10.64,16,9.4,16,8c0-2.21-1.79-4-4-4c-1.4,0-2.64,0.72-3.35,1.82l1.48,1.48 C10.41,6.54,11.14,6,12,6z"/></svg>"##;
+// pub const NO_PROFILE: &[u8] =
+// br##"<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px"><rect fill="none" height="24" width="24"/><path d="M20,17.17l-3.37-3.38c0.64,0.22,1.23,0.48,1.77,0.76C19.37,15.06,19.98,16.07,20,17.17z M21.19,21.19l-1.41,1.41L17.17,20H4 v-2.78c0-1.12,0.61-2.15,1.61-2.66c1.29-0.66,2.87-1.22,4.67-1.45L1.39,4.22l1.41-1.41L21.19,21.19z M15.17,18l-3-3 c-0.06,0-0.11,0-0.17,0c-2.37,0-4.29,0.73-5.48,1.34C6.2,16.5,6,16.84,6,17.22V18H15.17z M12,6c1.1,0,2,0.9,2,2 c0,0.86-0.54,1.59-1.3,1.87l1.48,1.48C15.28,10.64,16,9.4,16,8c0-2.21-1.79-4-4-4c-1.4,0-2.64,0.72-3.35,1.82l1.48,1.48 C10.41,6.54,11.14,6,12,6z"/></svg>"##;
+pub const TOGGLE_OFF: &[u8] =
+br##"<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF"><path d="M0 0h24v24H0z" fill="none"/><path d="M17 7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h10c2.76 0 5-2.24 5-5s-2.24-5-5-5zM7 15c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>"##;
+pub const TOGGLE_ON: &[u8] =
+br##"<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M17 7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h10c2.76 0 5-2.24 5-5s-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>"##;
+pub const MORE_VERT: &[u8] =
+br##"<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>"##;
+pub const HOME: &[u8] =
+br##"<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>"##;
+pub const BOOKLET: &[u8] =
+br##"<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>"##;

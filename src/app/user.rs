@@ -1,28 +1,11 @@
-#[derive(serde::Serialize, serde::Deserialize)]
-pub enum CurrentUser {
-	LoggedIn(User),
-	#[serde(skip)]
-	Empty(NewUser),
-}
-
-pub struct NewUser {
-	pub username: String,
-	pub password: String,
-}
-
-impl Default for NewUser {
-    fn default() -> Self {
-        Self {
-			username: String::new(),
-			password: String::new()}
-    }
-}
-
+#[derive(Clone)]
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct User {
+	is_mutable: bool,
+	is_logged_in: bool,
+
 	pub username: String,
 	password: String,
-	is_logged_in: bool,
 
 	#[serde(skip)]
 	profile_image: super::images::OptionalImage,	
@@ -31,9 +14,10 @@ pub struct User {
 impl Default for User {
     fn default() -> Self {
         Self {
-			username: String::from("Panda Test"),
-			password: Default::default(),
+			is_mutable: false,
 			is_logged_in: false,
+			username: Default::default(),
+			password: Default::default(),
 			profile_image: Default::default(),
 		}
     }
@@ -44,17 +28,23 @@ impl User {
 		Self {
 			username: username,
 			password: password,
+			is_mutable: true,
 			is_logged_in: true,
 			profile_image: Default::default(),
 		}
 	}
 	#[allow(dead_code)]
 	pub fn log_in(&mut self, password: String) -> bool {
-		if password == self.password {
+		if self.is_mutable && password == self.password {
 			self.is_logged_in = true;
 			true
 		} else {
 			false
+		}
+	}
+	pub fn log_out(&mut self) {
+		if self.is_mutable {
+			self.is_logged_in = false
 		}
 	}
 	#[allow(dead_code)]
@@ -63,12 +53,14 @@ impl User {
 			self.password = new_password
 		}
 	}
-	#[allow(dead_code)]
-	pub fn is_user_logged_in(&self) -> bool {
+	pub fn is_logged_in(&self) -> bool {
 		return self.is_logged_in
 	}
-	pub fn get_profile_picture(&mut self, ctx: &egui::Context) -> Option<(egui::TextureId, egui::Vec2)> {
-		if let Some((id, size)) = self.profile_image.get_id_size(ctx) {
+	pub fn is_mutable(&self) -> bool {
+		return self.is_mutable
+	}
+	pub fn get_profile_picture(&mut self) -> Option<(egui::TextureId, egui::Vec2)> {
+		if let Some((id, size)) = self.profile_image.get() {
 			Some((id, size))
 		} else {
 			None

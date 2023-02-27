@@ -1,13 +1,11 @@
 pub mod app;
 pub use app::App;
 
-
 // Local build
 #[cfg(not(target_arch = "wasm32"))]
 fn main() -> Result<(), eframe::Error> {
-
     let image: image::DynamicImage = image::io::Reader::open(
-        std::path::Path::new("assets\\favicon.png"))
+        std::path::Path::new("assets\\icons-192.png"))
         .unwrap()
 		.decode().unwrap();
     let width = image.width();
