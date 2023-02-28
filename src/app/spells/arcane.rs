@@ -1,4 +1,5 @@
 use super::*;
+use std::collections::HashSet;
 
 pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 	let ignition = images::StaticSvg::new_single(String::from("Ignition"), images::IGNITION.to_vec());
@@ -10,10 +11,10 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 	let entropy = images::StaticSvg::new_single(String::from("Entropy"), images::ENTROPY.to_vec());
 	return vec![
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Ignition,
 			ArcaneConcept::Ignition,
-			ArcaneConcept::Design]),
+			ArcaneConcept::Design])),
 		tags: vec![
 			SpellTags::Attack,
 			SpellTags::SingleTarget{targets: 1},
@@ -27,10 +28,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Ignition,
-			ArcaneConcept::Ignition,
-			ArcaneConcept::None]),
+			ArcaneConcept::Ignition])),
 		tags: vec![
 			SpellTags::Attack,
 			SpellTags::AreaOfEffect { range_bands: 0..1 }],
@@ -42,10 +42,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Ignition,
-			ArcaneConcept::Life,
-			ArcaneConcept::None]),
+			ArcaneConcept::Life])),
 		tags: vec![],
 		name: String::from("Revive"),
 		symbols: vec![
@@ -55,10 +54,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: Some(String::from("Heal before reviving"))},
 	
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Ignition,
-			ArcaneConcept::Design,
-			ArcaneConcept::None]),
+			ArcaneConcept::Design])),
 		tags: vec![],
 		name: String::from("Construct"),
 		symbols: vec![
@@ -68,10 +66,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Ignition,
-			ArcaneConcept::Astral,
-			ArcaneConcept::None]),
+			ArcaneConcept::Astral])),
 		tags: vec![
 			SpellTags::Attack,
 			SpellTags::SingleTarget { targets: 3 }],
@@ -83,10 +80,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: Some(String::from("Attacks from above"))},
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Ignition,
-			ArcaneConcept::Force,
-			ArcaneConcept::None]),
+			ArcaneConcept::Force])),
 		tags: vec![
 			SpellTags::Attack,
 			SpellTags::AreaOfEffect { range_bands: 0..2 }
@@ -99,10 +95,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Ignition,
-			ArcaneConcept::Widsom,
-			ArcaneConcept::None]),
+			ArcaneConcept::Widsom])),
 		tags: vec![],
 		name: String::from("Inspiration"),
 		symbols: vec![
@@ -112,10 +107,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Ignition,
-			ArcaneConcept::Entropy,
-			ArcaneConcept::None]),
+			ArcaneConcept::Entropy])),
 		tags: vec![
 			SpellTags::Attack,
 			SpellTags::AreaOfEffect { range_bands: 0..3 }
@@ -128,10 +122,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Life,
-			ArcaneConcept::Life,
-			ArcaneConcept::None]),
+			ArcaneConcept::Life])),
 		tags: vec![
 			SpellTags::AreaOfEffect { range_bands: 0..2 }
 		],
@@ -143,10 +136,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Life,
-			ArcaneConcept::Design,
-			ArcaneConcept::None]),
+			ArcaneConcept::Design])),
 		tags: vec![
 			SpellTags::AreaOfEffect { range_bands: 0..2 }
 		],
@@ -158,10 +150,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Life,
-			ArcaneConcept::Astral,
-			ArcaneConcept::None]),
+			ArcaneConcept::Astral])),
 		tags: vec![
 			SpellTags::SingleTarget { targets: 1 }
 		],
@@ -173,10 +164,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: Some(String::from("Extendable 1AD"))},	
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Life,
-			ArcaneConcept::Force,
-			ArcaneConcept::None]),
+			ArcaneConcept::Force])),
 		tags: vec![
 			SpellTags::SingleTarget { targets: 1 }
 		],
@@ -188,10 +178,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},	
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Life,
-			ArcaneConcept::Widsom,
-			ArcaneConcept::None]),
+			ArcaneConcept::Widsom])),
 		tags: vec![
 			SpellTags::SingleTarget { targets: 1 }
 		],
@@ -203,10 +192,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: Some(String::from("Extendable 1AD"))},	
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Life,
-			ArcaneConcept::Entropy,
-			ArcaneConcept::None]),
+			ArcaneConcept::Entropy])),
 		tags: vec![
 			SpellTags::Attack,
 			SpellTags::SingleTarget { targets: 1 },
@@ -219,10 +207,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Design,
-			ArcaneConcept::Design,
-			ArcaneConcept::None]),
+			ArcaneConcept::Design])),
 		tags: vec![
 			SpellTags::SingleTarget { targets: 1 }
 		],
@@ -234,10 +221,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: Some(String::from("Extendable 1AD"))},	
 	
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Design,
-			ArcaneConcept::Astral,
-			ArcaneConcept::None]),
+			ArcaneConcept::Astral])),
 		tags: vec![],
 		name: String::from("Imbue"),
 		symbols: vec![
@@ -247,10 +233,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Design,
-			ArcaneConcept::Force,
-			ArcaneConcept::None]),
+			ArcaneConcept::Force])),
 		tags: vec![
 			SpellTags::AreaOfEffect { range_bands: 0..1 }
 		],
@@ -262,10 +247,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: Some(String::from("Extendable 1AD"))},
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Design,
-			ArcaneConcept::Widsom,
-			ArcaneConcept::None]),
+			ArcaneConcept::Widsom])),
 		tags: vec![
 			SpellTags::SingleTarget { targets: 1 }
 		],
@@ -277,10 +261,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: Some(String::from("Extendable 1AD"))},
 
 	Spell{
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Design,
-			ArcaneConcept::Entropy,
-			ArcaneConcept::None]),
+			ArcaneConcept::Entropy])),
 		tags: vec![
 			SpellTags::SingleTarget { targets: 1 }
 		],
@@ -292,10 +275,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell {
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Astral,
-			ArcaneConcept::Astral,
-			ArcaneConcept::None]),
+			ArcaneConcept::Astral])),
 		tags: vec![
 			SpellTags::AreaOfEffect { range_bands: 0..2 }
 		],
@@ -307,10 +289,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell {
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Astral,
-			ArcaneConcept::Force,
-			ArcaneConcept::None]),
+			ArcaneConcept::Force])),
 		tags: vec![
 			SpellTags::AreaOfEffect { range_bands: 0..1 }
 		],
@@ -322,10 +303,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell {
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Astral,
-			ArcaneConcept::Widsom,
-			ArcaneConcept::None]),
+			ArcaneConcept::Widsom])),
 		tags: vec![],
 		name: String::from("Scry"),
 		symbols: vec![
@@ -335,10 +315,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: Some(String::from("Extendable 1AD"))},
 
 	Spell {
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Astral,
-			ArcaneConcept::Entropy,
-			ArcaneConcept::None]),
+			ArcaneConcept::Entropy])),
 		tags: vec![
 			SpellTags::SingleTarget { targets: 1 }
 		],
@@ -350,10 +329,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: Some(String::from("Extendable 1AD"))},
 
 	Spell {
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Force,
-			ArcaneConcept::Force,
-			ArcaneConcept::None]),
+			ArcaneConcept::Force])),
 		tags: vec![
 			SpellTags::SingleTarget { targets: 1 }
 		],
@@ -365,10 +343,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell {
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Force,
-			ArcaneConcept::Widsom,
-			ArcaneConcept::None]),
+			ArcaneConcept::Widsom])),
 		tags: vec![
 			SpellTags::SingleTarget { targets: 1 }
 		],
@@ -380,10 +357,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: None},
 
 	Spell {
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Force,
-			ArcaneConcept::Entropy,
-			ArcaneConcept::None]),
+			ArcaneConcept::Entropy])),
 		tags: vec![
 			SpellTags::AreaOfEffect { range_bands: 1..2 }
 		],
@@ -395,10 +371,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: Some(String::from("Extendable -1AD"))},
 
 	Spell {
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Widsom,
-			ArcaneConcept::Widsom,
-			ArcaneConcept::None]),
+			ArcaneConcept::Widsom])),
 		tags: vec![],
 		name: String::from("Narrow Possibility"),
 		symbols: vec![
@@ -408,10 +383,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: Some(String::from("The GM will tell you “The truth is among those” or “None of those are true"))},
 
 	Spell {
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Widsom,
-			ArcaneConcept::Entropy,
-			ArcaneConcept::None]),
+			ArcaneConcept::Entropy])),
 		tags: vec![
 			SpellTags::SingleTarget { targets: 1 }
 		],
@@ -423,10 +397,9 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		flavour_text: Some(String::from("Extendable 1AD"))},
 
 	Spell {
-		spell_type: SpellType::Arcane([
+		spell_type: SpellType::Arcane(HashSet::from([
 			ArcaneConcept::Entropy,
-			ArcaneConcept::Entropy,
-			ArcaneConcept::None]),
+			ArcaneConcept::Entropy])),
 		tags: vec![
 			SpellTags::SingleTarget { targets: 1 }
 		],

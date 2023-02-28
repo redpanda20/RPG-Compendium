@@ -7,12 +7,18 @@ pub struct Spell {
 	pub description: String,
 	pub flavour_text: Option<String>
 }
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone)]
 pub enum SpellType {
-	Arcane([ArcaneConcept; 3]),
+	None,
+	Arcane(std::collections::HashSet<ArcaneConcept>),
 	Fae(FaePatron)
 }
-#[derive(PartialEq, Clone, Copy)]
+impl Default for SpellType {
+    fn default() -> Self {
+        SpellType::None
+    }
+}
+#[derive(PartialEq, Clone, Eq, Hash)]
 pub enum ArcaneConcept {
 	Ignition,
 	Life,
@@ -20,15 +26,14 @@ pub enum ArcaneConcept {
 	Astral,
 	Force,
 	Widsom,
-	Entropy,
-	None
+	Entropy
 }
 #[derive(PartialEq, Clone, Copy)]
 pub enum FaePatron {
 	Generic,
-	_Pixie,
-	_Sylviel,
-	_ForgeSprite,
+	Pixie,
+	Sylviel,
+	ForgeSprite,
 }
 
 #[derive(Clone)]
@@ -53,6 +58,7 @@ impl Spell {
 
 					// Align on right
 					ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+						ui.spacing_mut().item_spacing = egui::vec2(0.0, 6.0);
 
 						// Rev to keep existing order from struct
 						for (id, size) in self.symbols.iter().rev() {

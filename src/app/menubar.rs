@@ -1,3 +1,5 @@
+use super::spells;
+
 pub fn upper(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Frame) -> egui::InnerResponse<()> {
 	#[allow(non_snake_case)]
 	let HOME: super::images::StaticSvg = 
@@ -50,7 +52,7 @@ pub fn upper(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::F
 			},
 			egui::widgets::ImageButton::new(booklet.0, booklet.1)
 		).clicked() {
-			parent.current_page = super::pages::Page::Compendium(super::pages::Selection::default());
+			parent.current_page = super::pages::Page::Compendium(spells::SpellType::None);
 		};
 
 		ui.add(

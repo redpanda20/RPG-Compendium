@@ -68,12 +68,11 @@ impl eframe::App for App {
 			};
 			match file_usage {
 				loader::FileUsage::ProfilePicture => {
-							if self.current_user.is_mutable() && self.current_user.is_logged_in() {
-								self.current_user.update_profile_picture(ctx, file_raw.to_vec());
-							}
-						},
-
-						loader::FileUsage::Error => (),
+					if self.current_user.is_mutable() && self.current_user.is_logged_in() {
+						self.current_user.update_profile_picture(ctx, file_raw.to_vec());
+					}
+				},
+				loader::FileUsage::Error => (),
 			};
 		}
 		// Handle shortcut inputs
