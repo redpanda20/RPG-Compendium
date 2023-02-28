@@ -3,17 +3,13 @@ use egui::*;
 mod user;
 mod shortcuts;
 mod images;
-mod menubar;
-mod popups;
 mod loader;
 
-#[derive(PartialEq)]
-#[derive(serde::Serialize, serde::Deserialize)]
-enum Page {
-	Home,
-	Compendium,
-	Character
-}
+mod popups;
+mod menubar;
+mod pages;
+
+mod spells;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct App {
@@ -22,7 +18,7 @@ pub struct App {
 	past_users: std::collections::HashMap<String, user::User>,
 	current_user: user::User,
 
-	current_page: Page,
+	current_page: pages::Page,
 
 	#[serde(skip)]
 	current_popup: popups::Popup,
@@ -39,7 +35,7 @@ impl Default for App {
 			current_user: user::User::default(),
 
 			loader: loader::Loader::default(),
-            current_page: Page::Home,
+            current_page: pages::Page::Home,
 			current_popup: popups::Popup::None,
 		}
     }
@@ -94,45 +90,8 @@ impl eframe::App for App {
 			}
 		});
 
-		match self.current_page {
-			Page::Home => {
-				menubar::lower(self, ctx, frame);
+		pages::show(self, ctx, frame);
 
-				CentralPanel::default().show(ctx, |ui| {
-					ui.label("This is the main page");
-
-					let booklet = images::StaticSvg::new(
-						String::from("Booklet"),
-						images::BOOKLET.to_vec())
-						.get(ctx);
-					if ui.add(
-						egui::Button::image_and_text(booklet.0, booklet.1, "Compendium")	
-					).clicked() {
-						self.current_page = Page::Compendium
-					};
-				});
-			},
-			Page::Compendium => {
-				menubar::upper(self, ctx, frame);
-
-				TopBottomPanel::bottom("References").show(ctx, |ui| {
-					ui.label("Built by Alexandra Stephens");
-					ui.hyperlink_to("Built using eframe", "https://github.com/emilk/egui/tree/master/crates/eframe");
-				});
-
-				CentralPanel::default().show(ctx, |ui| {
-					ui.label("There should be something here!");
-					ui.text_edit_multiline(&mut self.text);
-				});
-			}
-			Page::Character => {
-				menubar::upper(self, ctx, frame);
-
-				CentralPanel::default().show(ctx, |ui| {
-					ui.label("Character here");
-				});
-			},
-		}
 		if self.current_popup != popups::Popup::None {
 			ctx.layer_painter(
 				egui::LayerId {

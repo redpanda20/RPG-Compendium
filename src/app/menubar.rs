@@ -33,18 +33,24 @@ pub fn upper(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::F
 
 		let home = HOME.get(ctx);
 		if ui.add_enabled(
-			parent.current_page != super::Page::Home,
+			match parent.current_page {
+				super::pages::Page::Home => false,
+				_ => true,
+			},
 			egui::widgets::ImageButton::new(home.0, home.1)
 		).clicked() {
-			parent.current_page = super::Page::Home
+			parent.current_page = super::pages::Page::Home
 		};
 
 		let booklet = BOOKLET.get(ctx);
 		if ui.add_enabled(
-			parent.current_page != super::Page::Compendium,
+			match parent.current_page {
+				super::pages::Page::Compendium(_) => false,
+				_ => true,
+			},
 			egui::widgets::ImageButton::new(booklet.0, booklet.1)
 		).clicked() {
-			parent.current_page = super::Page::Compendium
+			parent.current_page = super::pages::Page::Compendium(super::pages::Selection::default());
 		};
 
 		ui.add(
