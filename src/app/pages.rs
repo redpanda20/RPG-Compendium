@@ -84,53 +84,81 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 							let Page::Compendium(spells::SpellType::Arcane(active_concepts)) = &mut parent.current_page else { return }; 
 							ui.add_space((ui.available_width() - 7.0 * (24.0 + 2.0 * ui.style().spacing.item_spacing.x + 2.0 * ui.style().spacing.button_padding.x)) / 2.0);
 						
-							let ign = images::StaticSvg::new_single(String::from("Ignition"), images::IGNITION.to_vec()).get(ctx);
-							if ui.add( egui::ImageButton::new(ign.0, ign.1) ).clicked() {
-								if ! active_concepts.insert(spells::ArcaneConcept::Ignition) {active_concepts.remove(&spells::ArcaneConcept::Ignition);} };
+							let concepts = [
+								(&spells::ArcaneConcept::Ignition, images::IGNITION),
+								(&spells::ArcaneConcept::Life, images::LIFE),
+								(&spells::ArcaneConcept::Design, images::DESIGN),
+								(&spells::ArcaneConcept::Astral, images::ASTRAL),
+								(&spells::ArcaneConcept::Force, images::FORCE),
+								(&spells::ArcaneConcept::Widsom, images::WISDOM),
+								(&spells::ArcaneConcept::Entropy, images::ENTROPY),
+							];
 
-							let lif = images::StaticSvg::new_single(String::from("Life"), images::LIFE.to_vec()).get(ctx);
-							if ui.add( egui::ImageButton::new(lif.0, lif.1) ).clicked() {
-								if ! active_concepts.insert(spells::ArcaneConcept::Life) {active_concepts.remove(&spells::ArcaneConcept::Life);} };
+							for (concept, img) in concepts {
+								let (texture_id, size) = images::StaticSvg::new_single(String::from("concept"), img.to_vec()).get(ctx);
+								ui.vertical(|ui| {
+									if ui.add(
+										egui::ImageButton::new(texture_id, size)
+									).clicked() {
+										if !active_concepts.insert(concept.clone()) {
+											active_concepts.remove(concept);
+										}
+									};
+									if active_concepts.contains(concept) {
+										let pos = ui.next_widget_position();
+										let painter = ui.painter();
+										let stroke = egui::Stroke::new(1.0, egui::Color32::WHITE);
+										painter.hline(pos.x..=(pos.x + 24.0 + 2.0 * ui.style().spacing.button_padding.x), pos.y, stroke);
+									}
+								});	
+							}
 
-							let des = images::StaticSvg::new_single(String::from("Design"), images::DESIGN.to_vec()).get(ctx);
-							if ui.add( egui::ImageButton::new(des.0, des.1) ).clicked() {
-								if ! active_concepts.insert(spells::ArcaneConcept::Design) {active_concepts.remove(&spells::ArcaneConcept::Design);} };
-
-							let ast = images::StaticSvg::new_single(String::from("Astral"), images::ASTRAL.to_vec()).get(ctx);
-							if ui.add( egui::ImageButton::new(ast.0, ast.1) ).clicked() {
-								if ! active_concepts.insert(spells::ArcaneConcept::Astral) {active_concepts.remove(&spells::ArcaneConcept::Astral);} };
-
-							let fce = images::StaticSvg::new_single(String::from("Force"), images::FORCE.to_vec()).get(ctx);
-							if ui.add( egui::ImageButton::new(fce.0, fce.1) ).clicked() {
-								if ! active_concepts.insert(spells::ArcaneConcept::Force) {active_concepts.remove(&spells::ArcaneConcept::Force);} };
-
-							let wis = images::StaticSvg::new_single(String::from("Wisdom"), images::WISDOM.to_vec()).get(ctx);
-							if ui.add( egui::ImageButton::new(wis.0, wis.1) ).clicked() {
-								if ! active_concepts.insert(spells::ArcaneConcept::Widsom) {active_concepts.remove(&spells::ArcaneConcept::Widsom);} };
-
-							let ent = images::StaticSvg::new_single(String::from("Entropy"), images::ENTROPY.to_vec()).get(ctx);
-							if ui.add( egui::ImageButton::new(ent.0, ent.1) ).clicked() {
-								if ! active_concepts.insert(spells::ArcaneConcept::Entropy) {active_concepts.remove(&spells::ArcaneConcept::Entropy);} };
 						},
 						spells::SpellType::Fae(_) => {
 							let Page::Compendium(spells::SpellType::Fae(active_patron)) = &mut parent.current_page else { return };
 							ui.add_space((ui.available_width() - 4.0 * (24.0 + 2.0 * ui.style().spacing.item_spacing.x + 2.0 * ui.style().spacing.button_padding.x)) / 2.0);
 							
-							let gen = images::StaticSvg::new(String::from("Generic"), images::HOME.to_vec()).get(ctx);
-							if ui.add( egui::ImageButton::new(gen.0, gen.1) ).clicked() {
-								*active_patron = spells::FaePatron::Generic };
+							let patrons = [
+								(spells::FaePatron::Pixie, images::PIXIE),
+								(spells::FaePatron::Sylviel, images::SYLVIEL),
+								(spells::FaePatron::ForgeSprite, images::FORGE_SPRITE),
+							];
+							for (patron, img) in patrons {
+								let (texture_id, size) = images::StaticSvg::new_single(String::from("patron"), img.to_vec()).get(ctx);
+								ui.vertical(|ui| {
+									if ui.add(
+										egui::ImageButton::new(texture_id, size)
+									).clicked() {
+										if *active_patron == patron {
+											*active_patron = spells::FaePatron::Generic;
+										} else {
+											*active_patron = patron
+										}
+									};
+									if *active_patron == patron {
+										let pos = ui.next_widget_position();
+										let painter = ui.painter();
+										let stroke = egui::Stroke::new(1.0, egui::Color32::WHITE);
+										painter.hline(pos.x..=(pos.x + 24.0 + 2.0 * ui.style().spacing.button_padding.x), pos.y, stroke);
+									}
+								});
+							}
 
-							let pix = images::StaticSvg::new_single(String::from("Pixie"), images::PIXIE.to_vec()).get(ctx);
-							if ui.add( egui::ImageButton::new(pix.0, pix.1) ).clicked() {
-								*active_patron = spells::FaePatron::Pixie };
+							// let gen = images::StaticSvg::new(String::from("Generic"), images::HOME.to_vec()).get(ctx);
+							// if ui.add( egui::ImageButton::new(gen.0, gen.1) ).clicked() {
+							// 	*active_patron = spells::FaePatron::Generic };
 
-							let syv = images::StaticSvg::new_single(String::from("Sylviel"), images::SYLVIEL.to_vec()).get(ctx);
-							if ui.add( egui::ImageButton::new(syv.0, syv.1) ).clicked() {
-								*active_patron = spells::FaePatron::Sylviel };
+							// let pix = images::StaticSvg::new_single(String::from("Pixie"), images::PIXIE.to_vec()).get(ctx);
+							// if ui.add( egui::ImageButton::new(pix.0, pix.1) ).clicked() {
+							// 	*active_patron = spells::FaePatron::Pixie };
 
-							let fge = images::StaticSvg::new_single(String::from("Forge Sprite"), images::FORGE_SPRITE.to_vec()).get(ctx);
-							if ui.add( egui::ImageButton::new(fge.0, fge.1) ).clicked() {
-								*active_patron = spells::FaePatron::ForgeSprite };
+							// let syv = images::StaticSvg::new_single(String::from("Sylviel"), images::SYLVIEL.to_vec()).get(ctx);
+							// if ui.add( egui::ImageButton::new(syv.0, syv.1) ).clicked() {
+							// 	*active_patron = spells::FaePatron::Sylviel };
+
+							// let fge = images::StaticSvg::new_single(String::from("Forge Sprite"), images::FORGE_SPRITE.to_vec()).get(ctx);
+							// if ui.add( egui::ImageButton::new(fge.0, fge.1) ).clicked() {
+							// 	*active_patron = spells::FaePatron::ForgeSprite };
 						},
 						spells::SpellType::None => (),
 						
