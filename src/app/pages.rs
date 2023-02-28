@@ -143,22 +143,6 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 									}
 								});
 							}
-
-							// let gen = images::StaticSvg::new(String::from("Generic"), images::HOME.to_vec()).get(ctx);
-							// if ui.add( egui::ImageButton::new(gen.0, gen.1) ).clicked() {
-							// 	*active_patron = spells::FaePatron::Generic };
-
-							// let pix = images::StaticSvg::new_single(String::from("Pixie"), images::PIXIE.to_vec()).get(ctx);
-							// if ui.add( egui::ImageButton::new(pix.0, pix.1) ).clicked() {
-							// 	*active_patron = spells::FaePatron::Pixie };
-
-							// let syv = images::StaticSvg::new_single(String::from("Sylviel"), images::SYLVIEL.to_vec()).get(ctx);
-							// if ui.add( egui::ImageButton::new(syv.0, syv.1) ).clicked() {
-							// 	*active_patron = spells::FaePatron::Sylviel };
-
-							// let fge = images::StaticSvg::new_single(String::from("Forge Sprite"), images::FORGE_SPRITE.to_vec()).get(ctx);
-							// if ui.add( egui::ImageButton::new(fge.0, fge.1) ).clicked() {
-							// 	*active_patron = spells::FaePatron::ForgeSprite };
 						},
 						spells::SpellType::None => (),
 						
