@@ -9,6 +9,8 @@ mod popups;
 mod menubar;
 mod pages;
 
+mod spells;
+
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct App {
 	text: String,
