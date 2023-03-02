@@ -1,4 +1,8 @@
-use super::images as images;
+use crate::resources::images;
+
+mod arcane;
+mod fae;
+
 pub struct Spell {
 	pub spell_type: SpellType,
 	pub tags: Vec<SpellTags>,
@@ -96,8 +100,6 @@ impl Spell {
 	}
 }
 
-mod arcane;
-mod fae;
 pub fn get_all_spells(ctx: &egui::Context) -> Vec<Spell> {
 	let mut spells = Vec::new();
 	spells.extend(arcane::get_arcane_spells(ctx));

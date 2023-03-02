@@ -1,15 +1,14 @@
 use egui::*;
 
-mod user;
-mod shortcuts;
-mod images;
-mod loader;
+use crate::resources::{loader, images};
+use crate::mystward::{spells};
+
+use crate::shortcuts;
+use crate::user;
 
 mod popups;
 mod menubar;
 mod pages;
-
-mod spells;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct App {
@@ -89,7 +88,20 @@ impl eframe::App for App {
 			}
 		});
 
-		pages::show(self, ctx, frame);
+		match self.current_page {
+			pages::Page::Home => {
+				menubar::lower(self, ctx, frame);
+				pages::show_home(self, ctx, frame);
+			},
+			pages::Page::Compendium(_) => {
+				menubar::upper(self, ctx, frame);
+				pages::show_spells(self, ctx, frame);
+			},
+			pages::Page::Character => {
+				menubar::upper(self, ctx, frame);
+				pages::show_character(self, ctx, frame);
+			},
+		}
 
 		if self.current_popup != popups::Popup::None {
 			ctx.layer_painter(
@@ -98,7 +110,7 @@ impl eframe::App for App {
 					id: egui::Id::new("paint_layer")})
 				.rect_filled(
 					egui::Rect::EVERYTHING,
-					egui::Rounding{ nw: 0.0, ne: 0.0, sw: 0.0, se: 0.0 },
+					egui::Rounding { nw: 0.0, ne: 0.0, sw: 0.0, se: 0.0 },
 					egui::Color32::from_rgba_unmultiplied(0, 0, 0, 96))
 		}
 		match self.current_popup {

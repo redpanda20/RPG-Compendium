@@ -1,30 +1,31 @@
+use super::images;
 use super::spells;
 
 pub fn upper(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Frame) -> egui::InnerResponse<()> {
 	#[allow(non_snake_case)]
-	let HOME: super::images::StaticSvg = 
-		super::images::StaticSvg::new(
+	let HOME: images::StaticSvg = 
+		images::StaticSvg::new(
 			String::from("Home"),
-			super::images::HOME.to_vec());
+			images::HOME.to_vec());
 	
 	#[allow(non_snake_case)]
-	let BOOKLET: super::images::StaticSvg =
-		super::images::StaticSvg::new(
+	let BOOKLET: images::StaticSvg =
+		images::StaticSvg::new(
 			String::from("Booklet"),
-			super::images::BOOKLET.to_vec());
+			images::BOOKLET.to_vec());
 	
 	#[allow(non_snake_case)]
-	let DARK_MODE: super::images::StaticSvg =
-		super::images::StaticSvg::new_precalculated(
+	let DARK_MODE: images::StaticSvg =
+		images::StaticSvg::new_precalculated(
 			String::from("light-dark-toggle"),
-			super::images::TOGGLE_OFF.to_vec(),
-			super::images::TOGGLE_ON.to_vec());
+			images::TOGGLE_OFF.to_vec(),
+			images::TOGGLE_ON.to_vec());
 
 	#[allow(non_snake_case)]
-	let VERT_MORE: super::images::StaticSvg =
-		super::images::StaticSvg::new(
+	let VERT_MORE: images::StaticSvg =
+		images::StaticSvg::new(
 			String::from("vert"),
-			super::images::MORE_VERT.to_vec());
+			images::MORE_VERT.to_vec());
 		
 	return egui::TopBottomPanel::top("Menu Bar - Upper").show(ctx, |ui| {
 
@@ -137,22 +138,22 @@ pub fn upper(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::F
 
 pub fn lower(parent: &mut super::App, ctx: &egui::Context, _frame: &mut eframe::Frame) -> egui::InnerResponse<()> {
 	#[allow(non_snake_case)]
-	let ACCOUNT: super::images::StaticSvg =
-		super::images::StaticSvg::new(
+	let ACCOUNT: images::StaticSvg =
+		images::StaticSvg::new(
 			String::from("has_account"),
-			super::images::ACCOUNT.to_vec());
+			images::ACCOUNT.to_vec());
 			#[allow(non_snake_case)]
-	let NO_ACCOUNT: super::images::StaticSvg =
-		super::images::StaticSvg::new(
+	let NO_ACCOUNT: images::StaticSvg =
+		images::StaticSvg::new(
 			String::from("has_account"),
-			super::images::ACCOUNT.to_vec());
+			images::ACCOUNT.to_vec());
 
 	#[allow(non_snake_case)]
-	let DARK_MODE: super::images::StaticSvg =
-		super::images::StaticSvg::new_precalculated(
+	let DARK_MODE: images::StaticSvg =
+		images::StaticSvg::new_precalculated(
 			String::from("light-dark-toggle"),
-			super::images::TOGGLE_OFF.to_vec(),
-			super::images::TOGGLE_ON.to_vec());
+			images::TOGGLE_OFF.to_vec(),
+			images::TOGGLE_ON.to_vec());
 		
 	
 

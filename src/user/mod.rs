@@ -1,3 +1,5 @@
+use crate::resources::images;
+
 #[derive(Clone)]
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct User {
@@ -8,7 +10,7 @@ pub struct User {
 	password: String,
 
 	#[serde(skip)]
-	profile_image: super::images::OptionalImage,	
+	profile_image: images::OptionalImage,	
 }
 
 impl Default for User {

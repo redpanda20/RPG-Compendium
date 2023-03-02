@@ -1,5 +1,11 @@
-pub mod app;
-pub use app::App;
+mod app;
+use app::App;
+
+pub mod resources;
+pub mod mystward;
+
+mod user;
+mod shortcuts;
 
 // Local build
 #[cfg(not(target_arch = "wasm32"))]

@@ -1,3 +1,5 @@
+use super::images;
+
 #[derive(PartialEq)]
 pub enum Popup {
 	None,
@@ -172,9 +174,9 @@ pub fn show_account(parent: &mut super::App, ctx: &egui::Context) {
 		});
 
 		let (id, size) = parent.current_user.get_profile_picture().unwrap_or_else( ||
-			super::images::StaticSvg::new_with_size(
+			images::StaticSvg::new_with_size(
 				String::from("no_image"),
-				super::images::NO_IMAGE.to_vec(),
+				images::NO_IMAGE.to_vec(),
 				[128, 128])
 				.get(ctx)
 		);
