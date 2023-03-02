@@ -29,6 +29,10 @@ impl OptionalImage {
 		);
 	}
 
+	pub fn is_some(&self) -> bool {
+		return self.profile_picture.is_some()
+	}
+
 	pub fn get(&mut self) -> Option<(egui::TextureId, egui::Vec2)> {
 		let Some(profile) = self.profile_picture.clone() else {
 			return None

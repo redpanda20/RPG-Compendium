@@ -57,6 +57,8 @@ impl eframe::App for App {
 	}
 
     fn update(&mut self, ctx: &Context, frame: &mut eframe::Frame) {
+		let mut should_save = false;
+
 		// Check ongoing promise and handle result
 		for option in &mut self.loader.promises {
 			let Some(promise) = option else {
@@ -69,6 +71,7 @@ impl eframe::App for App {
 				loader::FileUsage::ProfilePicture => {
 					if self.current_user.is_mutable() && self.current_user.is_logged_in() {
 						self.current_user.update_profile_picture(ctx, file_raw.to_vec());
+						should_save = true;
 					}
 				},
 				loader::FileUsage::Error => (),
@@ -82,9 +85,7 @@ impl eframe::App for App {
 				frame.close()
 			}
 			if i.consume_shortcut(&shortcuts::SAVE) {
-				if let Some(storage) = frame.storage_mut() {
-					self.save(storage);
-				}
+				should_save = true;
 			}
 		});
 
@@ -118,7 +119,8 @@ impl eframe::App for App {
 				popups::show_login(self, ctx);
 			},
 			popups::Popup::CreateAccount(_) => {
-				popups::show_signup(self, ctx);
+				let (save, _) = popups::show_signup(self, ctx);
+				if save { should_save = true; }
 			},
 			popups::Popup::ViewAccount => {
 				popups::show_account(self, ctx);
@@ -126,5 +128,10 @@ impl eframe::App for App {
 			popups::Popup::None => (),
 		};
 
+		if should_save {
+			if let Some(storage) = frame.storage_mut() {
+				self.save(storage);
+			}
+		}
     }
 }

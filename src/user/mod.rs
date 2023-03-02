@@ -1,4 +1,4 @@
-use crate::resources::images;
+use crate::resources::image;
 
 #[derive(Clone)]
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -10,7 +10,8 @@ pub struct User {
 	password: String,
 
 	#[serde(skip)]
-	profile_image: images::OptionalImage,	
+	profile_image: image::OptionalImage,	
+	image_storage: Option<Vec<u8>>,
 }
 
 impl Default for User {
@@ -21,6 +22,7 @@ impl Default for User {
 			username: Default::default(),
 			password: Default::default(),
 			profile_image: Default::default(),
+			image_storage: None,
 		}
     }
 }
@@ -28,13 +30,15 @@ impl Default for User {
 impl User {
 	pub fn new(username: String, password: String) -> Self {
 		Self {
-			username: username,
-			password: password,
+			username,
+			password,
 			is_mutable: true,
 			is_logged_in: true,
 			profile_image: Default::default(),
+			image_storage: None,
 		}
 	}
+
 	#[allow(dead_code)]
 	pub fn log_in(&mut self, password: String) -> bool {
 		if self.is_mutable && password == self.password {
@@ -61,7 +65,15 @@ impl User {
 	pub fn is_mutable(&self) -> bool {
 		return self.is_mutable
 	}
-	pub fn get_profile_picture(&mut self) -> Option<(egui::TextureId, egui::Vec2)> {
+	pub fn get_profile_picture(&mut self, ctx: &egui::Context) -> Option<(egui::TextureId, egui::Vec2)> {
+		if !self.is_logged_in {
+			return None
+		}
+		if !self.profile_image.is_some() {
+			if let Some(image) = self.image_storage.clone() {
+				self.update_profile_picture(ctx, image);
+			}
+		}
 		let Some((id, size)) = self.profile_image.get() else {
 			return None
 		};
@@ -69,7 +81,8 @@ impl User {
 	}
 	pub fn update_profile_picture(&mut self, ctx: &egui::Context, raw_file: Vec<u8>) {
 		if self.is_logged_in {
-			self.profile_image.load_image_from_raw(ctx, raw_file);
+			self.profile_image.load_image_from_raw(ctx, raw_file.clone());
+			self.image_storage = Some(raw_file.clone());
 		}
 	}
 }

@@ -99,9 +99,9 @@ pub fn show_login(parent: &mut super::App, ctx: &egui::Context) -> Option<egui::
 	return response
 }
 
-pub fn show_signup(parent: &mut super::App, ctx: &egui::Context) -> Option<egui::InnerResponse<Option<()>>>{
+pub fn show_signup(parent: &mut super::App, ctx: &egui::Context) -> (bool, Option<egui::InnerResponse<Option<()>>>){
 	let Popup::CreateAccount(details) = &mut parent.current_popup else {
-		return None
+		return (false, None)
 	};
 
 	let is_window_open: &mut bool = &mut true;
@@ -143,14 +143,14 @@ pub fn show_signup(parent: &mut super::App, ctx: &egui::Context) -> Option<egui:
 			details.username.clone(),
 			details.password.clone());
 
-		created_user = true
+		created_user = true;
 	}
 
 	if !*is_window_open || created_user {
 		parent.current_popup = Popup::None
 	}
 
-	return response
+	return (created_user, response)
 }
 
 pub fn show_account(parent: &mut super::App, ctx: &egui::Context) {
@@ -174,7 +174,7 @@ pub fn show_account(parent: &mut super::App, ctx: &egui::Context) {
 			ui.label(egui::RichText::new("Logged in").weak());
 		});
 
-		let (id, size) = parent.current_user.get_profile_picture().unwrap_or_else( ||
+		let (id, size) = parent.current_user.get_profile_picture(ctx).unwrap_or_else( ||
 			icon::Icon::from_svg_responsive_with_size(
 				defines::NO_IMAGE.to_vec(),
 				[128, 128], ctx)
