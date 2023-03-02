@@ -40,6 +40,7 @@ pub enum FaePatron {
 pub enum SpellTags {
 	Attack,
 	ArmourPiercing,
+	Aura,
 	SelfTarget,
 	SingleTarget {targets: usize},
 	AreaOfEffect {range_bands: std::ops::Range<usize>},
@@ -72,6 +73,7 @@ impl Spell {
 						let text = match tag {
 							SpellTags::Attack => "Attack.",
 							SpellTags::ArmourPiercing => "AP.",
+							SpellTags::Aura => "Self / Aura.",
 							SpellTags::SelfTarget => "Self.",
 							SpellTags::SingleTarget { targets: _ } => "Single Target.",
 							SpellTags::AreaOfEffect { range_bands: _ } => "Area of Effect."};
