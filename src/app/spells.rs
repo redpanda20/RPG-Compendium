@@ -1,4 +1,5 @@
 use super::images as images;
+#[derive(Clone)]
 pub struct Spell {
 	pub spell_type: SpellType,
 	pub tags: Vec<SpellTags>,
@@ -55,17 +56,13 @@ impl Spell {
 			ui.vertical(|ui| {
 				// Title bar
 				ui.horizontal(|ui| {
-					ui.label(egui::RichText::new(self.name.clone()).heading().strong());
+					for (id, size) in self.symbols.iter() {
+						ui.image(*id, *size);
+					};
+					ui.separator();
 
-					// Align on right
-					ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-						ui.spacing_mut().item_spacing = egui::vec2(0.0, 6.0);
+					ui.label(egui::RichText::new(self.name.clone()).strong().size(20.0));
 
-						// Rev to keep existing order from struct
-						for (id, size) in self.symbols.iter().rev() {
-							ui.image(*id, *size);
-						};		
-					});
 				});
 				// Spell tags
 				ui.horizontal(|ui| {

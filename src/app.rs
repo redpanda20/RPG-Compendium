@@ -35,7 +35,8 @@ impl Default for App {
 			current_user: user::User::default(),
 
 			loader: loader::Loader::default(),
-            current_page: pages::Page::Home,
+			// TODO! remove once more features added
+            current_page: pages::Page::Compendium(spells::SpellType::None),
 			current_popup: popups::Popup::None,
 		}
     }

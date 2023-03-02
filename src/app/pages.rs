@@ -78,6 +78,8 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 
 				});
 
+				ui.add_space(4.0);
+
 				ui.horizontal(|ui| {
 					match selected_type {
 						spells::SpellType::Arcane(_) => {
@@ -85,21 +87,23 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 							ui.add_space((ui.available_width() - 7.0 * (24.0 + 2.0 * ui.style().spacing.item_spacing.x + 2.0 * ui.style().spacing.button_padding.x)) / 2.0);
 						
 							let concepts = [
-								(&spells::ArcaneConcept::Ignition, images::IGNITION),
-								(&spells::ArcaneConcept::Life, images::LIFE),
-								(&spells::ArcaneConcept::Design, images::DESIGN),
-								(&spells::ArcaneConcept::Astral, images::ASTRAL),
-								(&spells::ArcaneConcept::Force, images::FORCE),
-								(&spells::ArcaneConcept::Widsom, images::WISDOM),
-								(&spells::ArcaneConcept::Entropy, images::ENTROPY),
+								("Ignition", &spells::ArcaneConcept::Ignition, images::IGNITION),
+								("Life", &spells::ArcaneConcept::Life, images::LIFE),
+								("Design", &spells::ArcaneConcept::Design, images::DESIGN),
+								("Astral", &spells::ArcaneConcept::Astral, images::ASTRAL),
+								("Force", &spells::ArcaneConcept::Force, images::FORCE),
+								("Wisdom", &spells::ArcaneConcept::Widsom, images::WISDOM),
+								("Entropy", &spells::ArcaneConcept::Entropy, images::ENTROPY),
 							];
 
-							for (concept, img) in concepts {
+							for (name, concept, img) in concepts {
 								let (texture_id, size) = images::StaticSvg::new_single(String::from("concept"), img.to_vec()).get(ctx);
 								ui.vertical(|ui| {
 									if ui.add(
 										egui::ImageButton::new(texture_id, size)
-									).clicked() {
+									)
+									.on_hover_text(name)
+									.clicked() {
 										if !active_concepts.insert(concept.clone()) {
 											active_concepts.remove(concept);
 										}
@@ -119,16 +123,18 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 							ui.add_space((ui.available_width() - 4.0 * (24.0 + 2.0 * ui.style().spacing.item_spacing.x + 2.0 * ui.style().spacing.button_padding.x)) / 2.0);
 							
 							let patrons = [
-								(spells::FaePatron::Pixie, images::PIXIE),
-								(spells::FaePatron::Sylviel, images::SYLVIEL),
-								(spells::FaePatron::ForgeSprite, images::FORGE_SPRITE),
+								("Pixie", spells::FaePatron::Pixie, images::PIXIE),
+								("Sylviel", spells::FaePatron::Sylviel, images::SYLVIEL),
+								("Forge Sprite", spells::FaePatron::ForgeSprite, images::FORGE_SPRITE),
 							];
-							for (patron, img) in patrons {
+							for (name, patron, img) in patrons {
 								let (texture_id, size) = images::StaticSvg::new_single(String::from("patron"), img.to_vec()).get(ctx);
 								ui.vertical(|ui| {
 									if ui.add(
 										egui::ImageButton::new(texture_id, size)
-									).clicked() {
+									)
+									.on_hover_text(name)
+									.clicked() {
 										if *active_patron == patron {
 											*active_patron = spells::FaePatron::Generic;
 										} else {
@@ -149,61 +155,113 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 					}
 				});
 
+				// Calculate full match
+				let spells_full: Vec<spells::Spell> = all_spells.clone()
+					.into_iter()
+					.filter(|spell| match selected_type.clone() {
+						spells::SpellType::None => true,
 
-				let filtered_spells: Vec<spells::Spell> = match selected_type {
-					spells::SpellType::None => {
-						all_spells
-					}
-					spells::SpellType::Arcane(selected_concepts) => {
-						all_spells
-							.into_iter()
-							.filter(|spell| match &spell.spell_type {
-								spells::SpellType::Arcane(concepts) => selected_concepts.is_empty() || !concepts.is_disjoint(&selected_concepts),
-								_ => false})
-							.collect()
-					},
-					spells::SpellType::Fae(selected_patron) => {
-						all_spells
-							.into_iter()
-							.filter(|spell| match spell.spell_type {
-							spells::SpellType::Fae(patron) => selected_patron == spells::FaePatron::Generic || patron == selected_patron,
-							_ => false })
-							.collect()
-					},
-				};
+						spells::SpellType::Arcane(concepts) => match &spell.spell_type {
+								spells::SpellType::Arcane(spell_concepts) => spell_concepts.is_subset(&concepts),
+								_ => false
+							},
+
+						spells::SpellType::Fae(patron) => match spell.spell_type {
+								spells::SpellType::Fae(spell_patron) => spell_patron == patron,
+								_ => false
+							},
+					})
+					.collect();
+
+
+				// Calculate partial match
+				let spells_partial: Vec<spells::Spell> = all_spells.clone()
+					.into_iter()
+					.filter(|spell| match selected_type.clone() {
+						spells::SpellType::None => false,
+
+						spells::SpellType::Arcane(concepts) => match &spell.spell_type {
+								spells::SpellType::Arcane(spell_concepts) => concepts.is_empty() || !spell_concepts.is_disjoint(&concepts),
+								_ => false
+							},
+
+						spells::SpellType::Fae(patron) => match spell.spell_type {
+								spells::SpellType::Fae(spell_patron) => patron == spells::FaePatron::Generic || spell_patron == spells::FaePatron::Generic,
+								_ => false
+							},
+					})
+					.collect();
+
 
 				let content_width = (ui.available_width() / 6.0).clamp(200.0, 340.0);
-				let row_size = (((ui.available_width() - 200.0) / content_width).floor() as usize).clamp(1, 5);
-				let spacing = (ui.available_width() - content_width * (row_size) as f32 - 10.0 * (row_size - 1) as f32) / 2.0;	
+				let base_row_size = (((ui.available_width() - 200.0) / content_width).floor() as usize).clamp(1, 5);
+				let base_spacing = (ui.available_width() - content_width * (base_row_size) as f32 - 10.0 * (base_row_size - 1) as f32) / 2.0;	
 
-				ui.add_space(5.0);
-				// ui.add( egui::Separator::default());
-				ui.add( egui::Separator::default().horizontal().shrink( spacing ));
-				ui.add_space(10.0);
-
-				ui.horizontal_top(|ui| {
-
-					ui.add_space(spacing);
-
-					egui::Grid::new("content_grid")
-						.max_col_width(content_width)
-						.spacing(egui::vec2(10.0, 10.0))
-						.show(ui, |ui| {
-						let mut row_length = 0;
-						for spell in filtered_spells {
-							spell.show(ui, ctx);
-
-							row_length += 1;
-							if row_length >= row_size {
-								row_length = 0;
-								ui.end_row();
-							}
-						}
+				if !spells_full.is_empty() {
+					ui.add_space(5.0);
+					ui.add( egui::Separator::default().horizontal().shrink( base_spacing ));
+					ui.add_space(10.0);
+	
+					ui.horizontal_top(|ui| {
+						let row_size = if spells_full.len() < base_row_size {
+							spells_full.len()
+						} else {
+							base_row_size.clone()
+						};
+						let spacing = (ui.available_width() - content_width * (row_size) as f32 - 10.0 * (row_size - 1) as f32) / 2.0;	
+						let mut row_pos = 0;
+	
+						ui.add_space(spacing);
+						egui::Grid::new("grid_spell_full_match")
+							.max_col_width(content_width)
+							.spacing(egui::vec2(10.0, 10.0))
+							.show(ui, |ui| {
+							for spell in spells_full {
+								spell.show(ui, ctx);
+	
+								row_pos += 1;
+								if row_pos >= row_size {
+									row_pos = 0;
+									ui.end_row();
+								}
+							};
+						});
 					});
+				}
 
-					ui.add_space(spacing);
+				if !spells_partial.is_empty() {
 
-				})
+					ui.add_space(10.0);
+					ui.add( egui::Separator::default().horizontal().shrink( base_spacing ));
+					ui.add_space(10.0);
+	
+					ui.horizontal_top(|ui| {
+						let row_size = if spells_partial.len() <= base_row_size{
+							spells_partial.len()
+						} else {
+							base_row_size.clone()
+						};
+						let spacing = (ui.available_width() - content_width * (row_size) as f32 - 10.0 * (row_size - 1) as f32) / 2.0;	
+						let mut row_pos = 0;
+
+						ui.add_space(spacing);
+						egui::Grid::new("grid_spell_partial_match")
+							.max_col_width(content_width)
+							.spacing(egui::vec2(10.0, 10.0))
+							.show(ui, |ui| {
+							for spell in spells_partial {
+								spell.show(ui, ctx);
+	
+								row_pos += 1;
+								if row_pos >= row_size {
+									row_pos = 0;
+									ui.end_row();
+								}
+							};
+						});
+						// ui.add_space(spacing);
+					});
+				}
 
 			});
 			});
