@@ -1,19 +1,19 @@
-// use egui::TextureId;
+use egui::TextureId;
 
 pub struct Icon {
 
-	// image: TextureId,
-	// size: (f32, f32),
-
-	image: egui_extras::RetainedImage,
-	alt_image: Option<egui_extras::RetainedImage>, 
+	image: TextureId,
+	alt_image: Option<TextureId>,
+	size: egui::Vec2,
 }
 impl Icon {
 
 	pub fn from_svg_constant(img_bytes: Vec<u8>, ctx: &egui::Context) -> Self {
+		let temp_image = egui_extras::RetainedImage::from_svg_bytes("svg icon", &img_bytes).unwrap();
 		return Self {
-			image: egui_extras::RetainedImage::from_svg_bytes("svg icon", &img_bytes).unwrap(),
-			alt_image: None }
+			image: temp_image.texture_id(ctx),
+			alt_image: None,
+			size: temp_image.size_vec2() }
 	}
 	
 	pub fn from_svg_responsive(img_bytes: Vec<u8>, ctx: &egui::Context) -> Self {
@@ -30,31 +30,39 @@ impl Icon {
 		let (left, right) = img_bytes.split_at(index);
 		let white_bytes = [left, br##" fill="#FFFFFF""##, right].concat();
 		
-	
+		let alt_image = egui_extras::RetainedImage::from_svg_bytes_with_size("svg icon", &white_bytes, icon_size).unwrap();
+
 		// Calculate white image
-		let black_bytes = img_bytes.clone();
+		let image = egui_extras::RetainedImage::from_svg_bytes_with_size("svg icon", &img_bytes.clone(), icon_size).unwrap();
 	
 		return Self {
-			image: egui_extras::RetainedImage::from_svg_bytes_with_size("svg icon", &white_bytes, icon_size).unwrap(),
-			alt_image: Some(egui_extras::RetainedImage::from_svg_bytes_with_size("svg icon", &black_bytes, icon_size).unwrap()),
-			};
+			image: image.texture_id(ctx),
+			alt_image: Some(alt_image.texture_id(ctx)),
+			size: image.size_vec2()
+		};
 	}
 	
-	pub fn from_svg_responsive_precalculated(white_bytes: Vec<u8>, black_bytes: Vec<u8>, ctx: &egui::Context) -> Self {	
+	pub fn from_svg_responsive_precalculated(image_bytes: Vec<u8>, alt_bytes: Vec<u8>, ctx: &egui::Context) -> Self {	
+		let icon_size = egui_extras::image::FitTo::Size(24, 24);
+
+		let image = egui_extras::RetainedImage::from_svg_bytes_with_size("svg icon", &alt_bytes.clone(), icon_size).unwrap();
+		let alt_image = egui_extras::RetainedImage::from_svg_bytes_with_size("svg icon", &image_bytes.clone(), icon_size).unwrap();
+
 		return Self {
-			image: egui_extras::RetainedImage::from_svg_bytes("svg icon", &white_bytes).unwrap(),
-			alt_image: Some(egui_extras::RetainedImage::from_svg_bytes("svg icon", &black_bytes).unwrap()),
-			};
+			image: image.texture_id(ctx),
+			alt_image: Some(alt_image.texture_id(ctx)),
+			size: image.size_vec2()
+		};
 	}
 
 	pub fn get(&self, ctx: &egui::Context) -> (egui::TextureId, egui::Vec2) {
 		let Some(alt) = self.alt_image.as_ref() else {
-			return (self.image.texture_id(ctx), self.image.size_vec2())
+			return (self.image, self.size)
 		};
 		if ctx.style().visuals.dark_mode {
-			(self.image.texture_id(ctx), self.image.size_vec2())
+			(*alt, self.size)
 		} else {
-			(alt.texture_id(ctx), alt.size_vec2())
+			(self.image, self.size)
 		}
 	}
 }
