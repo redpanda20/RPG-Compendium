@@ -164,7 +164,7 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 							},
 
 						spells::SpellType::Fae(patron) => match spell.spell_type {
-								spells::SpellType::Fae(spell_patron) => spell_patron == patron,
+								spells::SpellType::Fae(spell_patron) => spell_patron == patron && spell_patron != spells::FaePatron::Generic,
 								_ => false
 							},
 					})
@@ -210,12 +210,11 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 	
 						ui.add_space(spacing);
 						egui::Grid::new("grid_spell_full_match")
-							.min_col_width(content_width)
 							.max_col_width(content_width)
 							.spacing(egui::vec2(10.0, 10.0))
 							.show(ui, |ui| {
 							for spell in spells_full {
-								spell.show(ui, ctx);
+								spell.show(ui, ctx, content_width);
 	
 								row_pos += 1;
 								if row_pos >= row_size {
@@ -244,12 +243,11 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 
 						ui.add_space(spacing);
 						egui::Grid::new("grid_spell_partial_match")
-							.min_col_width(content_width)
 							.max_col_width(content_width)
 							.spacing(egui::vec2(10.0, 10.0))
 							.show(ui, |ui| {
 							for spell in spells_partial {
-								spell.show(ui, ctx);
+								spell.show(ui, ctx, content_width);
 	
 								row_pos += 1;
 								if row_pos >= row_size {
@@ -258,7 +256,6 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 								}
 							};
 						});
-						// ui.add_space(spacing);
 					});
 				}
 

@@ -50,48 +50,53 @@ pub enum SpellTags {
 
 impl Spell {
 
-	pub fn show(&self, ui: &mut egui::Ui, ctx: &egui::Context) {
-		// let spell = self.clone();
+	pub fn show(&self, ui: &mut egui::Ui, ctx: &egui::Context, width: f32) {
 		egui::Frame::menu(&ctx.style())
 		.show(ui, |ui| {
-			ui.vertical(|ui| {
-				// Title bar
-				ui.horizontal(|ui| {
-					for (id, size) in self.symbols.iter() {
-						ui.image(*id, *size);
-					};
-					ui.separator();
+			ui.set_max_width(width);
+			ui.set_min_size(egui::vec2(width, 100.0));
+			
+		ui.vertical(|ui| {
+			// Title bar
+			ui.horizontal(|ui| {
+				for (id, size) in self.symbols.iter() {
+					ui.image(*id, *size);
+				};
+				ui.separator();
 
-					ui.label(egui::RichText::new(self.name.clone()).strong().size(20.0));
+				ui.add(egui::Label::new(
+					egui::RichText::new(self.name.clone()).strong().size(20.0))
+					.wrap(true)
+				);
 
-				});
-				// Spell tags
-				ui.horizontal(|ui| {
-					for tag in self.tags.iter() {
-						let text = match tag {
-							SpellTags::Attack => "Attack.",
-							SpellTags::ArmourPiercing => "AP.",
-							SpellTags::Aura => "Self / Aura.",
-							SpellTags::SelfTarget => "Self.",
-							SpellTags::SingleTarget { targets: _ } => "Single Target.",
-							SpellTags::AreaOfEffect { range_bands: _ } => "Area of Effect."};
-						ui.label(
-							egui::RichText::new(text)
-								.strong()
-						);
-						ui.add_space(4.0);
-					}
-				});
-				// Body text
-				ui.label(self.description.clone());
-				if let Some(flavour_text) = self.flavour_text.clone() {
+			});
+			// Spell tags
+			ui.horizontal(|ui| {
+				for tag in self.tags.iter() {
+					let text = match tag {
+						SpellTags::Attack => "Attack.",
+						SpellTags::ArmourPiercing => "AP.",
+						SpellTags::Aura => "Self / Aura.",
+						SpellTags::SelfTarget => "Self.",
+						SpellTags::SingleTarget { targets: _ } => "Single Target.",
+						SpellTags::AreaOfEffect { range_bands: _ } => "Area of Effect."};
 					ui.label(
-						egui::RichText::new(flavour_text)
-							.weak()
-							.italics()
+						egui::RichText::new(text)
+							.strong()
 					);
+					ui.add_space(4.0);
 				}
 			});
+			// Body text
+			ui.label(self.description.clone());
+			if let Some(flavour_text) = self.flavour_text.clone() {
+				ui.label(
+					egui::RichText::new(flavour_text)
+						.weak()
+						.italics()
+				);
+			}
+		});
 		});
 	}
 }
