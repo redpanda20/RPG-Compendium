@@ -203,7 +203,7 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		symbols: vec![
 			life.get(ctx),
 			entropy.get(ctx)],
-		description: String::from("<edium range. Damage someone’s life force directly, ignoring all cover, armour or other defences. Is reversed by Revive."),
+		description: String::from("Medium range. Damage someone’s life force directly, ignoring all cover, armour or other defences. Is reversed by Revive."),
 		flavour_text: None},
 
 	Spell{
