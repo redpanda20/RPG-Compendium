@@ -38,8 +38,7 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 			egui::ScrollArea::vertical().show(ui, |ui| {
 
 				ui.horizontal(|ui|{
-					let spacing = (ui.available_width() - 320.0) / 2.0;
-					ui.add_space(spacing);
+					ui.add_space((ui.available_width() - 3.0 * 80.0 - 2.0 * ui.spacing().item_spacing.x) / 2.0);
 					ui.add_enabled_ui(
 						match selected_type { spells::SpellType::None => false, _ => true },
 						|ui| {
@@ -74,8 +73,6 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 							);
 						}
 					});
-					ui.add_space(spacing);
-
 				});
 
 				ui.add_space(4.0);
@@ -84,7 +81,7 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 					match selected_type {
 						spells::SpellType::Arcane(_) => {
 							let Page::Compendium(spells::SpellType::Arcane(active_concepts)) = &mut parent.current_page else { return }; 
-							ui.add_space((ui.available_width() - 7.0 * (24.0 + 2.0 * ui.style().spacing.item_spacing.x + 2.0 * ui.style().spacing.button_padding.x)) / 2.0);
+							ui.add_space((ui.available_width() - 7.0 * (24.0 + 2.0 * ui.spacing().button_padding.x) - 6.0 * ui.spacing().item_spacing.x) / 2.0);
 						
 							let concepts = [
 								("Ignition", &spells::ArcaneConcept::Ignition, images::IGNITION),
@@ -120,7 +117,7 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 						},
 						spells::SpellType::Fae(_) => {
 							let Page::Compendium(spells::SpellType::Fae(active_patron)) = &mut parent.current_page else { return };
-							ui.add_space((ui.available_width() - 4.0 * (24.0 + 2.0 * ui.style().spacing.item_spacing.x + 2.0 * ui.style().spacing.button_padding.x)) / 2.0);
+							ui.add_space((ui.available_width() - 3.0 * (24.0 + 2.0 * ui.spacing().button_padding.x) - 2.0 * ui.spacing().item_spacing.x) / 2.0);
 							
 							let patrons = [
 								("Pixie", spells::FaePatron::Pixie, images::PIXIE),
@@ -213,6 +210,7 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 	
 						ui.add_space(spacing);
 						egui::Grid::new("grid_spell_full_match")
+							.min_col_width(content_width)
 							.max_col_width(content_width)
 							.spacing(egui::vec2(10.0, 10.0))
 							.show(ui, |ui| {
@@ -246,6 +244,7 @@ pub fn show(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Fr
 
 						ui.add_space(spacing);
 						egui::Grid::new("grid_spell_partial_match")
+							.min_col_width(content_width)
 							.max_col_width(content_width)
 							.spacing(egui::vec2(10.0, 10.0))
 							.show(ui, |ui| {

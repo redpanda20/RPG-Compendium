@@ -40,6 +40,7 @@ pub enum FaePatron {
 #[derive(Clone)]
 pub enum SpellTags {
 	Attack,
+	#[allow(dead_code)]
 	ArmourPiercing,
 	Aura,
 	SelfTarget,
