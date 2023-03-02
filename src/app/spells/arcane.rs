@@ -10,22 +10,22 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 	let wisdom = images::StaticSvg::new_single(String::from("Wisdom"), images::WISDOM.to_vec());
 	let entropy = images::StaticSvg::new_single(String::from("Entropy"), images::ENTROPY.to_vec());
 	return vec![
-	Spell{
-		spell_type: SpellType::Arcane(HashSet::from([
-			ArcaneConcept::Ignition,
-			ArcaneConcept::Ignition,
-			ArcaneConcept::Design])),
-		tags: vec![
-			SpellTags::Attack,
-			SpellTags::SingleTarget{targets: 1},
-			SpellTags::ArmourPiercing],
-		name: String::from("Fire Lance"),
-		symbols: vec![
-			ignition.get(ctx),
-			ignition.get(ctx),
-			design.get(ctx)],
-		description: String::from("Ignites target for further AP damage at the end of the next round."),
-		flavour_text: None},
+	// Spell{
+	// 	spell_type: SpellType::Arcane(HashSet::from([
+	// 		ArcaneConcept::Ignition,
+	// 		ArcaneConcept::Ignition,
+	// 		ArcaneConcept::Design])),
+	// 	tags: vec![
+	// 		SpellTags::Attack,
+	// 		SpellTags::SingleTarget{targets: 1},
+	// 		SpellTags::ArmourPiercing],
+	// 	name: String::from("Fire Lance"),
+	// 	symbols: vec![
+	// 		ignition.get(ctx),
+	// 		ignition.get(ctx),
+	// 		design.get(ctx)],
+	// 	description: String::from("Ignites target for further AP damage at the end of the next round."),
+	// 	flavour_text: None},
 
 	Spell{
 		spell_type: SpellType::Arcane(HashSet::from([
