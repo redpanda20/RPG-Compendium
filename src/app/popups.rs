@@ -1,4 +1,5 @@
-use super::images;
+use super::icon;
+use super::defines;
 
 #[derive(PartialEq)]
 pub enum Popup {
@@ -174,10 +175,9 @@ pub fn show_account(parent: &mut super::App, ctx: &egui::Context) {
 		});
 
 		let (id, size) = parent.current_user.get_profile_picture().unwrap_or_else( ||
-			images::StaticSvg::new_with_size(
-				String::from("no_image"),
-				images::NO_IMAGE.to_vec(),
-				[128, 128])
+			icon::Icon::from_svg_responsive_with_size(
+				defines::NO_IMAGE.to_vec(),
+				[128, 128], ctx)
 				.get(ctx)
 		);
 		if ui.add(

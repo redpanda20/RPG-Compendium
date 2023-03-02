@@ -1,4 +1,6 @@
-use super::images;
+use super::icon;
+use super::defines;
+
 use super::spells;
 
 #[derive(Clone)]
@@ -13,9 +15,8 @@ pub fn show_home(parent: &mut super::App, ctx: &egui::Context, _frame: &mut efra
 	egui::CentralPanel::default().show(ctx, |ui| {
 		ui.label("This is the main page");
 
-		let booklet = images::StaticSvg::new(
-			String::from("Booklet"),
-			images::BOOKLET.to_vec())
+		let booklet = icon::Icon::from_svg_constant(
+			defines::BOOKLET.to_vec(), ctx)
 			.get(ctx);
 		if ui.add(
 			egui::Button::image_and_text(booklet.0, booklet.1, "Compendium")	
@@ -82,17 +83,17 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 					ui.add_space((ui.available_width() - 7.0 * (24.0 + 2.0 * ui.style().spacing.item_spacing.x + 2.0 * ui.style().spacing.button_padding.x)) / 2.0);
 				
 					let concepts = [
-						(&spells::ArcaneConcept::Ignition, images::IGNITION),
-						(&spells::ArcaneConcept::Life, images::LIFE),
-						(&spells::ArcaneConcept::Design, images::DESIGN),
-						(&spells::ArcaneConcept::Astral, images::ASTRAL),
-						(&spells::ArcaneConcept::Force, images::FORCE),
-						(&spells::ArcaneConcept::Widsom, images::WISDOM),
-						(&spells::ArcaneConcept::Entropy, images::ENTROPY),
+						(&spells::ArcaneConcept::Ignition, defines::IGNITION),
+						(&spells::ArcaneConcept::Life, defines::LIFE),
+						(&spells::ArcaneConcept::Design, defines::DESIGN),
+						(&spells::ArcaneConcept::Astral, defines::ASTRAL),
+						(&spells::ArcaneConcept::Force, defines::FORCE),
+						(&spells::ArcaneConcept::Widsom, defines::WISDOM),
+						(&spells::ArcaneConcept::Entropy, defines::ENTROPY),
 					];
 
 					for (concept, img) in concepts {
-						let (texture_id, size) = images::StaticSvg::new_single(String::from("concept"), img.to_vec()).get(ctx);
+						let (texture_id, size) = icon::Icon::from_svg_constant(img.to_vec(), ctx).get(ctx);
 						ui.vertical(|ui| {
 							if ui.add(
 								egui::ImageButton::new(texture_id, size)
@@ -116,12 +117,12 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 					ui.add_space((ui.available_width() - 4.0 * (24.0 + 2.0 * ui.style().spacing.item_spacing.x + 2.0 * ui.style().spacing.button_padding.x)) / 2.0);
 					
 					let patrons = [
-						(spells::FaePatron::Pixie, images::PIXIE),
-						(spells::FaePatron::Sylviel, images::SYLVIEL),
-						(spells::FaePatron::ForgeSprite, images::FORGE_SPRITE),
+						(spells::FaePatron::Pixie, defines::PIXIE),
+						(spells::FaePatron::Sylviel, defines::SYLVIEL),
+						(spells::FaePatron::ForgeSprite, defines::FORGE_SPRITE),
 					];
 					for (patron, img) in patrons {
-						let (texture_id, size) = images::StaticSvg::new_single(String::from("patron"), img.to_vec()).get(ctx);
+						let (texture_id, size) = icon::Icon::from_svg_constant(img.to_vec(), ctx).get(ctx);
 						ui.vertical(|ui| {
 							if ui.add(
 								egui::ImageButton::new(texture_id, size)

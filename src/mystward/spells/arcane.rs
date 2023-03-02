@@ -2,13 +2,13 @@ use super::*;
 use std::collections::HashSet;
 
 pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
-	let ignition = images::StaticSvg::new_single(String::from("Ignition"), images::IGNITION.to_vec());
-	let life = images::StaticSvg::new_single(String::from("Life"), images::LIFE.to_vec());
-	let design = images::StaticSvg::new_single(String::from("Design"), images::DESIGN.to_vec());
-	let astral = images::StaticSvg::new_single(String::from("Astral"), images::ASTRAL.to_vec());
-	let force = images::StaticSvg::new_single(String::from("Force"), images::FORCE.to_vec());
-	let wisdom = images::StaticSvg::new_single(String::from("Wisdom"), images::WISDOM.to_vec());
-	let entropy = images::StaticSvg::new_single(String::from("Entropy"), images::ENTROPY.to_vec());
+	let ignition = icon::Icon::from_svg_constant( defines::IGNITION.to_vec(), ctx);
+	let life = icon::Icon::from_svg_constant( defines::LIFE.to_vec(), ctx);
+	let design = icon::Icon::from_svg_constant( defines::DESIGN.to_vec(), ctx);
+	let astral = icon::Icon::from_svg_constant(defines::ASTRAL.to_vec(), ctx);
+	let force = icon::Icon::from_svg_constant(defines::FORCE.to_vec(), ctx);
+	let wisdom = icon::Icon::from_svg_constant(defines::WISDOM.to_vec(), ctx);
+	let entropy = icon::Icon::from_svg_constant(defines::ENTROPY.to_vec(), ctx);
 	return vec![
 	Spell{
 		spell_type: SpellType::Arcane(HashSet::from([

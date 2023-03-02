@@ -1,6 +1,6 @@
 use egui::*;
 
-use crate::resources::{loader, images};
+use crate::resources::{loader, icon, defines};
 use crate::mystward::{spells};
 
 use crate::shortcuts;

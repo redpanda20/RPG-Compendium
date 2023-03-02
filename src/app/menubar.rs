@@ -1,31 +1,30 @@
-use super::images;
+use super::icon;
+use super::defines;
+
 use super::spells;
 
 pub fn upper(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Frame) -> egui::InnerResponse<()> {
 	#[allow(non_snake_case)]
-	let HOME: images::StaticSvg = 
-		images::StaticSvg::new(
-			String::from("Home"),
-			images::HOME.to_vec());
+	let HOME =
+		icon::Icon::from_svg_responsive(
+			defines::HOME.to_vec(), ctx);
 	
 	#[allow(non_snake_case)]
-	let BOOKLET: images::StaticSvg =
-		images::StaticSvg::new(
-			String::from("Booklet"),
-			images::BOOKLET.to_vec());
+	let BOOKLET =
+		icon::Icon::from_svg_responsive(
+			defines::BOOKLET.to_vec(), ctx);
 	
 	#[allow(non_snake_case)]
-	let DARK_MODE: images::StaticSvg =
-		images::StaticSvg::new_precalculated(
-			String::from("light-dark-toggle"),
-			images::TOGGLE_OFF.to_vec(),
-			images::TOGGLE_ON.to_vec());
+	let DARK_MODE =
+		icon::Icon::from_svg_responsive_precalculated(
+			defines::TOGGLE_OFF.to_vec(),
+			defines::TOGGLE_ON.to_vec(),
+			ctx);
 
 	#[allow(non_snake_case)]
-	let VERT_MORE: images::StaticSvg =
-		images::StaticSvg::new(
-			String::from("vert"),
-			images::MORE_VERT.to_vec());
+	let VERT_MORE =
+		icon::Icon::from_svg_responsive(
+			defines::MORE_VERT.to_vec(), ctx);
 		
 	return egui::TopBottomPanel::top("Menu Bar - Upper").show(ctx, |ui| {
 
@@ -138,22 +137,20 @@ pub fn upper(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::F
 
 pub fn lower(parent: &mut super::App, ctx: &egui::Context, _frame: &mut eframe::Frame) -> egui::InnerResponse<()> {
 	#[allow(non_snake_case)]
-	let ACCOUNT: images::StaticSvg =
-		images::StaticSvg::new(
-			String::from("has_account"),
-			images::ACCOUNT.to_vec());
-			#[allow(non_snake_case)]
-	let NO_ACCOUNT: images::StaticSvg =
-		images::StaticSvg::new(
-			String::from("has_account"),
-			images::ACCOUNT.to_vec());
+	let ACCOUNT =
+	icon::Icon::from_svg_responsive(
+		defines::ACCOUNT.to_vec(), ctx);
+	#[allow(non_snake_case)]
+	let NO_ACCOUNT =
+	icon::Icon::from_svg_responsive(
+		defines::ACCOUNT.to_vec(), ctx);
 
 	#[allow(non_snake_case)]
-	let DARK_MODE: images::StaticSvg =
-		images::StaticSvg::new_precalculated(
-			String::from("light-dark-toggle"),
-			images::TOGGLE_OFF.to_vec(),
-			images::TOGGLE_ON.to_vec());
+	let DARK_MODE =
+	icon::Icon::from_svg_responsive_precalculated(
+		defines::TOGGLE_OFF.to_vec(),
+		defines::TOGGLE_ON.to_vec(),
+		ctx);
 		
 	
 

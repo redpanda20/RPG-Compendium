@@ -1,11 +1,11 @@
 use super::*;
 
 pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
-	let neg_one = images::StaticSvg::new(String::from("neg-one"), images::NEG_ONE.to_vec());
-	let neg_two = images::StaticSvg::new(String::from("neg-two"), images::NEG_TWO.to_vec());
-	let pixie = images::StaticSvg::new_single(String::from("pixie"), images::PIXIE.to_vec());
-	let sylviel = images::StaticSvg::new_single(String::from("sylviel"), images::SYLVIEL.to_vec());
-	let forge_s = images::StaticSvg::new_single(String::from("forge_s"), images::FORGE_SPRITE.to_vec());
+	let neg_one = icon::Icon::from_svg_responsive(defines::NEG_ONE.to_vec(), ctx);
+	let neg_two = icon::Icon::from_svg_responsive(defines::NEG_TWO.to_vec(), ctx);
+	let pixie = icon::Icon::from_svg_constant(defines::PIXIE.to_vec(), ctx);
+	let sylviel = icon::Icon::from_svg_constant(defines::SYLVIEL.to_vec(), ctx);
+	let forge_s = icon::Icon::from_svg_constant(defines::FORGE_SPRITE.to_vec(), ctx);
 
 	return vec![
 	Spell{
