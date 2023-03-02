@@ -66,15 +66,7 @@ impl Spell {
 				ui.style_mut().spacing.item_spacing = egui::vec2(6.0, 6.0);
 				ui.separator();
 
-				// let name = egui::WidgetText::RichText(egui::RichText::new(self.name.clone()).strong().size(20.0));
-				let mut heading = egui::text::LayoutJob {
-					wrap: egui::epaint::text::TextWrapping { max_width: ui.available_width(), max_rows: 0, break_anywhere: true, overflow_character: Some('…') },
-					..Default::default()
-				};
-				for text in self.name.clone().split_inclusive(" ") {
-					heading.append(text, 0.0, egui::TextFormat{font_id: egui::FontId{size: 20.0, family: egui::FontFamily::Proportional}, ..Default::default()});
-				}
-				ui.label(heading);
+				ui.heading(self.name.clone());
 
 			});
 			// Spell tags
