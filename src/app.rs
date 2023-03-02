@@ -78,6 +78,8 @@ impl eframe::App for App {
 		}
 		// Handle shortcut inputs
 		ctx.input_mut(|i| {
+			i.raw.pixels_per_point = frame.info().native_pixels_per_point;
+
 			// Cannot shutdown web application
 			#[cfg(not(target_arch = "wasm32"))]
 			if i.consume_shortcut(&shortcuts::SHUTDOWN) {
