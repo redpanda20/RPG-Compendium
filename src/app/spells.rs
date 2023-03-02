@@ -59,15 +59,22 @@ impl Spell {
 		ui.vertical(|ui| {
 			// Title bar
 			ui.horizontal(|ui| {
+				ui.style_mut().spacing.item_spacing = egui::vec2(0.0, 6.0);
 				for (id, size) in self.symbols.iter() {
 					ui.image(*id, *size);
 				};
+				ui.style_mut().spacing.item_spacing = egui::vec2(6.0, 6.0);
 				ui.separator();
 
-				ui.add(egui::Label::new(
-					egui::RichText::new(self.name.clone()).strong().size(20.0))
-					.wrap(true)
-				);
+				// let name = egui::WidgetText::RichText(egui::RichText::new(self.name.clone()).strong().size(20.0));
+				let mut heading = egui::text::LayoutJob {
+					wrap: egui::epaint::text::TextWrapping { max_width: ui.available_width(), max_rows: 0, break_anywhere: true, overflow_character: Some('…') },
+					..Default::default()
+				};
+				for text in self.name.clone().split_inclusive(" ") {
+					heading.append(text, 0.0, egui::TextFormat{font_id: egui::FontId{size: 20.0, family: egui::FontFamily::Proportional}, ..Default::default()});
+				}
+				ui.label(heading);
 
 			});
 			// Spell tags
