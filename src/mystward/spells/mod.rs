@@ -12,6 +12,7 @@ pub struct Spell {
 	pub flavour_text: Option<String>
 }
 #[derive(PartialEq, Clone)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub enum SpellType {
 	None,
 	Arcane(std::collections::HashSet<ArcaneConcept>),
@@ -23,6 +24,7 @@ impl Default for SpellType {
     }
 }
 #[derive(PartialEq, Clone, Eq, Hash)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub enum ArcaneConcept {
 	Ignition,
 	Life,
@@ -33,6 +35,7 @@ pub enum ArcaneConcept {
 	Entropy
 }
 #[derive(PartialEq, Clone, Copy)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub enum FaePatron {
 	Generic,
 	Pixie,

@@ -2,6 +2,9 @@ use super::icon;
 use super::defines;
 
 use super::spells;
+use super::character;
+
+use super::popups;
 
 #[derive(Clone)]
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -9,7 +12,7 @@ pub enum Page {
 	Home,
 	#[serde(skip)]
 	Compendium(spells::SpellType),
-	Character
+	CharacterSheet(character::CharacterSheetDetails)
 }
 pub fn show_home(parent: &mut super::App, ctx: &egui::Context, _frame: &mut eframe::Frame) {
 	egui::CentralPanel::default().show(ctx, |ui| {
@@ -206,8 +209,39 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 	});
 	});
 }
-pub fn show_character(_parent: &mut super::App, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+
+pub fn show_character(parent: &mut super::App, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+	let Page::CharacterSheet(details) = &mut parent.current_page else {
+		return
+	};	
+
+	let _item_list = character::items::load_requisition_items();
+
 	egui::CentralPanel::default().show(ctx, |ui| {
-		ui.label("Character here");
+		egui::ScrollArea::vertical().show(ui, |ui| {
+
+
+		if let Some(character) = parent.current_user.get_character() {
+
+				let width = (ui.available_width() - 100.0).clamp(200.0, 1500.0);
+				let spacing = (ui.available_width() - width) / 2.0;
+
+				ui.horizontal(|ui| {
+					ui.add_space(spacing);
+					character.show(&mut parent.loader, details, ui, ctx, width);
+				});
+
+		} else {
+
+			ui.label("No character available");
+			if ui.button("Create character").clicked() {
+				if parent.current_popup.is_none() {
+					parent.current_popup = popups::Popup::CreateCharacter(popups::CharacterDetails::new());
+				}
+
+			};
+		};
+	});
+
 	});
 }

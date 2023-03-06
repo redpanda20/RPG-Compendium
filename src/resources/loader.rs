@@ -15,6 +15,7 @@ impl Default for Loader {
 #[derive(Clone)]
 pub enum FileUsage {
 	ProfilePicture,
+	CharacterPicture,
 	Error
 }
 

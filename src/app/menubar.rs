@@ -1,7 +1,11 @@
 use super::icon;
 use super::defines;
 
+use super::pages;
+use super::popups;
+
 use super::spells;
+use super::character;
 
 pub fn upper(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Frame) -> egui::InnerResponse<()> {
 	#[allow(non_snake_case)]
@@ -128,6 +132,17 @@ pub fn upper(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::F
 					frame.close()
 				}
 			});
+
+			if ui.button("Character Sheet").clicked() {
+				if parent.current_popup.is_none() {
+					if parent.current_user.get_character().is_none() {
+						parent.current_popup = popups::Popup::CreateCharacter(popups::CharacterDetails::new())
+					} 
+					parent.current_page = pages::Page::CharacterSheet(character::CharacterSheetDetails::new())
+	
+				}
+			}
+
 		});
 	});
 	});
@@ -167,7 +182,7 @@ pub fn lower(parent: &mut super::App, ctx: &egui::Context, _frame: &mut eframe::
 				if ui.add(
 					egui::widgets::Button::image_and_text(account.0, account.1, "Logged in")
 				).clicked() {
-					if parent.current_popup == super::popups::Popup::None {
+					if parent.current_popup.is_none() {
 						parent.current_popup = super::popups::Popup::ViewAccount
 					}
 				};
@@ -177,7 +192,7 @@ pub fn lower(parent: &mut super::App, ctx: &egui::Context, _frame: &mut eframe::
 				if ui.add(
 					egui::widgets::Button::image_and_text(no_account.0, no_account.1, "Log in")
 				).clicked() {
-					if parent.current_popup == super::popups::Popup::None {
+					if parent.current_popup.is_none() {
 						parent.current_popup = super::popups::Popup::LogIn(
 							super::popups::UserDetails::new(
 								String::new(),
@@ -226,53 +241,3 @@ pub fn lower(parent: &mut super::App, ctx: &egui::Context, _frame: &mut eframe::
 		});
 	});
 }
-
-// let account = ACCOUNT.get(ctx);
-// 			ui.menu_image_button(account.0, account.1,|ui| {
-// 				match &mut parent.current_user {
-// 			// User is logged in
-// 					super::user::CurrentUser::LoggedIn(user) => {
-
-// 							ui.label(user.username.clone());
-// 							ui.label(egui::RichText::new("Currently logged in").weak());
-
-// 							let profile = user.get_profile_picture().unwrap_or_else( ||
-// 								NO_IMAGE.get(ctx)
-// 							);
-								
-
-// 							if ui.add(
-// 								egui::widgets::ImageButton::new(profile.0, profile.1)
-// 							)
-// 							.on_hover_text("Double click to edit")
-// 							.double_clicked() {
-// 								parent.loader.file_dialog(super::loader::FileUsage::ProfilePicture);
-// 							};
-
-// 							if ui.add(
-// 								egui::Button::new("Logout")
-// 							).clicked() {
-// 								let new_user = super::user::NewUser::default();
-// 								parent.current_user = super::user::CurrentUser::Empty(new_user);
-// 							};
-
-// 					},
-// 			// User is not logged in
-// 					super::user::CurrentUser::Empty(new_user) => {
-// 						ui.label("Create account");
-// 						ui.text_edit_singleline(&mut new_user.username);
-// 						ui.text_edit_singleline(&mut new_user.password);
-
-// 						if ui.add(
-// 							egui::Button::new("Enter")
-// 						).clicked() {
-// 							if !new_user.username.is_empty() && !new_user.password.is_empty() {
-// 								let user = super::user::User::new(
-// 									new_user.username.clone(),
-// 									new_user.password.clone()
-// 								);
-// 								parent.current_user = super::user::CurrentUser::LoggedIn(user)};
-// 						};
-// 					},
-// 				}
-// 			});

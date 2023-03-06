@@ -1,29 +1,29 @@
 use egui::*;
 
 use crate::resources::{loader, icon, defines};
-use crate::mystward::{spells};
+use crate::mystward::{spells, character};
 
 use crate::shortcuts;
 use crate::user;
 
 mod popups;
 mod menubar;
-mod pages;
+pub mod pages;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct App {
 	text: String,
 
 	past_users: std::collections::HashMap<String, user::User>,
-	current_user: user::User,
+	pub current_user: user::User,
 
-	current_page: pages::Page,
+	pub current_page: pages::Page,
 
 	#[serde(skip)]
 	current_popup: popups::Popup,
 
 	#[serde(skip)]
-	loader: loader::Loader,
+	pub loader: loader::Loader,
 }
 
 impl Default for App {
@@ -72,6 +72,13 @@ impl eframe::App for App {
 					}
 					reciever.close();
 				},
+				loader::FileUsage::CharacterPicture => {
+					if let Some(character) = self.current_user.get_character() {
+						character.update_picture(ctx, file_raw);
+						should_save = true;
+					}
+					reciever.close();
+				},
 				loader::FileUsage::Error => (),
 			}
 		}
@@ -103,13 +110,13 @@ impl eframe::App for App {
 				menubar::upper(self, ctx, frame);
 				pages::show_spells(self, ctx, frame);
 			},
-			pages::Page::Character => {
+			pages::Page::CharacterSheet(_) => {
 				menubar::upper(self, ctx, frame);
 				pages::show_character(self, ctx, frame);
 			},
 		}
 
-		if self.current_popup != popups::Popup::None {
+		if !self.current_popup.is_none() {
 			ctx.layer_painter(
 				egui::LayerId {
 					order: egui::layers::Order::Background,
@@ -129,6 +136,9 @@ impl eframe::App for App {
 			},
 			popups::Popup::ViewAccount => {
 				popups::show_account(self, ctx);
+			},
+			popups::Popup::CreateCharacter(_) => {
+				popups::show_create_character(self, ctx);
 			},
 			popups::Popup::None => (),
 		};

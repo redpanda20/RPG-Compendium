@@ -1,20 +1,30 @@
+use crate::mystward::character;
+
 use super::icon;
 use super::defines;
 
-#[derive(PartialEq)]
+// #[derive(PartialEq)]
 pub enum Popup {
 	None,
 	LogIn(UserDetails),
 	CreateAccount(UserDetails),
 	ViewAccount,
+	CreateCharacter(CharacterDetails)
 }
 impl Default for Popup {
     fn default() -> Self {
         Popup::None
     }
 }
+impl Popup {
+	pub fn is_none(&self) -> bool {
+		match self {
+			Popup::None => true,
+			_ => false,
+		}
+	}
+}
 
-#[derive(PartialEq)]
 pub struct UserDetails{
 	pub username: String,
 	pub password: String,
@@ -22,8 +32,8 @@ pub struct UserDetails{
 impl UserDetails {
 	pub fn new(username: String, password:String) -> Self {
 		Self {
-			username: username,
-			password: password,
+			username,
+			password,
 		}
 	}
 }
@@ -99,7 +109,7 @@ pub fn show_login(parent: &mut super::App, ctx: &egui::Context) -> Option<egui::
 	return response
 }
 
-pub fn show_signup(parent: &mut super::App, ctx: &egui::Context) -> (bool, Option<egui::InnerResponse<Option<()>>>){
+pub fn show_signup(parent: &mut super::App, ctx: &egui::Context) -> (bool, Option<egui::InnerResponse<Option<()>>>) {
 	let Popup::CreateAccount(details) = &mut parent.current_popup else {
 		return (false, None)
 	};
@@ -202,4 +212,123 @@ pub fn show_account(parent: &mut super::App, ctx: &egui::Context) {
 	if !*is_window_open || logout {
 		parent.current_popup = Popup::None
 	}
+}
+
+pub struct CharacterDetails{
+	pub name: String,
+	pub archetype: character::RacialArchetype,
+	pub attributes: Vec<(character::Attribute, u8)>,
+}
+impl CharacterDetails {
+	pub fn new() -> Self {
+		Self {
+			name: String::from(""),
+			archetype: character::RacialArchetype::Undecided,
+			attributes: Vec::new()
+		}
+	}
+}
+pub fn show_create_character(parent: &mut super::App, ctx: &egui::Context) -> (bool, Option<egui::InnerResponse<Option<()>>>) {
+	let Popup::CreateCharacter(details) = &mut parent.current_popup else {
+		return (false, None)
+	};
+
+	let is_window_open: &mut bool = &mut true;
+	let mut button = false;
+
+	let response = egui::Window::new("Create New Character")
+	.anchor(
+		egui::Align2::CENTER_CENTER,
+		egui::vec2(0.0, 0.0))
+	.open(is_window_open)
+	.auto_sized()
+	.collapsible(false)
+	.show(ctx, |ui| {
+		ui.label("Character name");
+		ui.text_edit_singleline(&mut details.name);
+
+		egui::ComboBox::from_id_source("Race combobox")
+			.width(200.0)
+			.selected_text(match details.archetype {
+				character::RacialArchetype::Undecided => "",
+				character::RacialArchetype::Byvine(_) => "Byvine",
+				character::RacialArchetype::Clank(_) => "Clank",
+				character::RacialArchetype::Human(_) => "Human",
+				character::RacialArchetype::MoonElf(_) => "Moon Elf",
+				character::RacialArchetype::MystFae(_) => "MystFae",
+				character::RacialArchetype::Treekin(_) => "Treekin",
+				character::RacialArchetype::Wyvren(_) => "Wyvren",
+			})
+			.show_ui(ui, |ui| {
+				ui.selectable_value(&mut details.archetype, character::RacialArchetype::Byvine(character::ByvineClass::Base), "Byvine");
+				ui.selectable_value(&mut details.archetype, character::RacialArchetype::Clank(character::ClankClass::Base), "Clank");
+				ui.selectable_value(&mut details.archetype, character::RacialArchetype::Human(character::HumanClass::Base), "Human");
+				ui.selectable_value(&mut details.archetype, character::RacialArchetype::MoonElf(character::MoonElfClass::Base), "Moon Elf");
+				ui.selectable_value(&mut details.archetype, character::RacialArchetype::MystFae(character::MystFaeClass::Base), "MystFae");
+				ui.selectable_value(&mut details.archetype, character::RacialArchetype::Treekin(character::TreekinClass::Base), "Treekin");
+				ui.selectable_value(&mut details.archetype, character::RacialArchetype::Wyvren(character::WyvrenClass::Base), "Wyvren");
+
+			});
+
+		let archetype_info = details.archetype.get_variants();
+
+		if !archetype_info.is_empty() {
+			let title = details.archetype.to_string();
+			egui::ComboBox::from_id_source("Archetype combobox")
+				.width(200.0)
+				.selected_text(title)
+				.show_ui(ui, |ui| {
+					for archetype in archetype_info {
+						ui.selectable_value(&mut details.archetype, archetype.clone(), archetype.to_string());
+					}
+				});
+		}
+
+		button = ui.button("Create Character").clicked();
+	});
+
+	let mut created_character = false;
+	if button {
+		if match &details.archetype	{
+			character::RacialArchetype::Undecided => false,
+			character::RacialArchetype::Byvine(archetype) => match archetype {
+				character::ByvineClass::Base => false,
+				_ => true
+			},
+			character::RacialArchetype::Clank(archetype) => match archetype {
+				character::ClankClass::Base => false,
+				_ => true
+			},
+			character::RacialArchetype::Human(archetype) => match archetype {
+				character::HumanClass::Base => false,
+				_ => true
+			},
+			character::RacialArchetype::MoonElf(archetype) => match archetype {
+				character::MoonElfClass::Base => false,
+				_ => true
+			},
+			character::RacialArchetype::MystFae(archetype) => match archetype {
+				character::MystFaeClass::Base => false,
+				_ => true
+			},
+			character::RacialArchetype::Treekin(archetype) => match archetype {
+				character::TreekinClass::Base => false,
+				_ => true
+			},
+			character::RacialArchetype::Wyvren(archetype) => match archetype {
+				character::WyvrenClass::Base => false,
+				_ => true
+			}
+		} && !details.name.is_empty() {
+			parent.current_user.set_character(details.name.clone(), details.archetype.clone());
+			created_character = true;
+		}
+	}
+
+	if !*is_window_open || created_character {
+		parent.current_popup = Popup::None
+	}
+
+	return (created_character, response)
+
 }

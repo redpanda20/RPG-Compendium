@@ -1,4 +1,5 @@
 use crate::resources::image;
+use crate::mystward::character;
 
 #[derive(Clone)]
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -12,6 +13,8 @@ pub struct User {
 	#[serde(skip)]
 	profile_image: image::OptionalImage,	
 	image_storage: Option<Vec<u8>>,
+
+	character: Option<character::Character>,
 }
 
 impl Default for User {
@@ -23,6 +26,7 @@ impl Default for User {
 			password: Default::default(),
 			profile_image: Default::default(),
 			image_storage: None,
+			character: None
 		}
     }
 }
@@ -36,6 +40,7 @@ impl User {
 			is_logged_in: true,
 			profile_image: Default::default(),
 			image_storage: None,
+			character: None
 		}
 	}
 
@@ -84,5 +89,12 @@ impl User {
 			self.profile_image.load_image_from_raw(ctx, raw_file.clone());
 			self.image_storage = Some(raw_file.clone());
 		}
+	}
+	pub fn get_character(&mut self) -> &mut Option<character::Character> {
+		return &mut self.character
+	}
+
+	pub fn set_character(&mut self, name: String, racial_archetype: character::RacialArchetype) {
+		self.character = Some(character::Character::new(name, racial_archetype));
 	}
 }
