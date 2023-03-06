@@ -27,8 +27,8 @@ pub fn upper(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::F
 			defines::MORE_VERT.to_vec(), ctx);
 		
 	return egui::TopBottomPanel::top("Menu Bar - Upper").show(ctx, |ui| {
-
 	egui::menu::bar(ui, |ui| {
+
 		ui.spacing_mut().item_spacing = egui::vec2(12.0, 2.0);
 
 		ui.add_space(12.0);
@@ -73,6 +73,7 @@ pub fn upper(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::F
 			ui.add_space(12.0);
 
 			let vert = VERT_MORE.get(ctx);
+			
 			ui.menu_image_button(vert.0, vert.1, |ui| {
 
 				let dark_mode = DARK_MODE.get(ctx);

@@ -12,11 +12,10 @@ egui_extras = {version = "0.21.0", features = ["svg"]}
 image = "0.24.5"
 rfd = "0.11.1"
 serde = { version = "1.0.152", features = ["derive"] }
-poll-promise = {version = "0.2.0", features = ["web"]}
+async-std = "1.12.0"
 
 # Native build
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-async-std = "1.12.0"
+# [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 
 # Web build
 [target.'cfg(target_arch = "wasm32")'.dependencies]

@@ -59,12 +59,9 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &Context, frame: &mut eframe::Frame) {
 		let mut should_save = false;
 
-		// Check ongoing promise and handle result
-		for option in &mut self.loader.promises {
-			let Some(promise) = option else {
-				break;
-			};
-			let Some((file_usage, file_raw)) = promise.ready() else {
+		// Check reciever
+		for reciever in &self.loader.receiver {
+			let Ok((file_usage, file_raw)) = reciever.try_recv() else {
 				break;
 			};
 			match file_usage {
@@ -73,10 +70,18 @@ impl eframe::App for App {
 						self.current_user.update_profile_picture(ctx, file_raw.to_vec());
 						should_save = true;
 					}
+					reciever.close();
 				},
 				loader::FileUsage::Error => (),
-			};
+			}
 		}
+		self.loader.receiver.retain(|recv| match recv.try_recv() {
+			Ok(_) => true,
+			Err(e) => match e {
+				async_std::channel::TryRecvError::Empty => true,
+				async_std::channel::TryRecvError::Closed => false,
+		}});
+
 		// Handle shortcut inputs
 		ctx.input_mut(|i| {
 			// Cannot shutdown web application
