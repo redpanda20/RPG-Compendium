@@ -14,7 +14,7 @@ use super::spells;
 pub struct Character {
 	pub character_info: CharacterInfo,
 	pub archetype: RacialArchetype,
-	pub attributes: Vec<(Attribute, u8)>,
+	pub attributes: std::collections::HashMap<Attribute, u8>,
 	pub items: items::ItemList,
 	pub notes: String,
 }
@@ -45,7 +45,20 @@ impl CharacterSheetDetails {
 
 impl Character {
 	pub fn new(name: String, racial_archetype: RacialArchetype) -> Self {
-		let attributes = attributes::default();
+		let mut attributes = attributes::default();
+
+		for (attribute, quanity) in attributes::from_archetype(&racial_archetype) {
+			let existing = attributes.get(&attribute);
+			match existing {
+				Some(old_quantity) => {
+					attributes.insert(attribute, old_quantity + quanity);
+				},
+				None => {
+					attributes.insert(attribute, quanity);
+				},
+			};
+		}
+
 		Self {
 			character_info: CharacterInfo {
 				name,
@@ -232,7 +245,7 @@ impl Character {
 			});
 			ui.separator();
 
-			if let (Attribute::Unused, quantity) = self.attributes[0] {
+			if let Some(quantity) = self.attributes.get(&Attribute::Unused) {
 				ui.label( egui::RichText::new(format!("{}: {}", Attribute::Unused.to_string(), quantity)).size(16.0) );
 				ui.add_space(10.0);
 			}

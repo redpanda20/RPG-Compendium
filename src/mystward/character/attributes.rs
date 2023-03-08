@@ -1,7 +1,6 @@
-// use super::*;
 use super::spells;
 
-#[derive(PartialEq, Clone)]
+#[derive(Eq, PartialEq, Clone, Hash)]
 #[derive(serde::Serialize, serde::Deserialize)]
 pub enum Attribute {
 	Unused,
@@ -11,7 +10,7 @@ pub enum Attribute {
 	Stealth,
 	FirstAid,
 	Diplomacy(Race),
-	Magic(spells::SpellType),
+	Magic(spells::CasterType),
 	Lore(Lore),
 	Blacksmith,
 	Explosives,
@@ -33,9 +32,17 @@ impl ToString for Attribute {
                 Race::Rova => "Diplomacy (The Kingdom of Rova)",
             },
             Attribute::Magic(magic_type) => match magic_type {
-                spells::SpellType::None => "",
-                spells::SpellType::Arcane(_) => "Arcane Magic",
-                spells::SpellType::Fae(patron) => match patron {
+                spells::CasterType::Wild => "Wild Magic",
+                spells::CasterType::Arcane(concept) => match concept {
+                    spells::ArcaneConcept::Ignition => "Arcane Magic (Ignition)",
+                    spells::ArcaneConcept::Life => "Arcane Magic (Life)",
+                    spells::ArcaneConcept::Design => "Arcane Magic (Design)",
+                    spells::ArcaneConcept::Astral => "Arcane Magic (Astral)",
+                    spells::ArcaneConcept::Force => "Arcane Magic (Force)",
+                    spells::ArcaneConcept::Widsom => "Arcane Magic (Widsom)",
+                    spells::ArcaneConcept::Entropy => "Arcane Magic (Entropy)",
+                },
+                spells::CasterType::Fae(patron) => match patron {
                     spells::FaePatron::Generic => "Fae Magic",
                     spells::FaePatron::Pixie => "Fae Magic (Pixie)",
                     spells::FaePatron::Sylviel => "Fae Magic (Sylviel)",
@@ -59,14 +66,14 @@ impl ToString for Attribute {
         }.to_owned()
     }
 }
-#[derive(PartialEq, Clone)]
+#[derive(Eq, PartialEq, Clone, Hash)]
 #[derive(serde::Serialize, serde::Deserialize)]
 pub enum Race {
 	Cerudant,
 	InkurtAnami,
 	Rova
 }
-#[derive(PartialEq, Clone)]
+#[derive(Eq, PartialEq, Clone, Hash)]
 #[derive(serde::Serialize, serde::Deserialize)]
 pub enum Lore {
 	Fables,
@@ -78,13 +85,73 @@ pub enum Lore {
 	Geology,
 	History
 }
-pub fn default() -> Vec<(Attribute, u8)> {
-    return vec![
-        (Attribute::Unused, 6),
-        (Attribute::Athletics, 1),
-        (Attribute::Melee, 0),
-        (Attribute::Marksmanship, 0),
-        (Attribute::Stealth, 0),
-        (Attribute::FirstAid, 0),	
-    ];
+pub fn default() -> std::collections::HashMap<Attribute, u8> {
+    let mut map = std::collections::HashMap::new();
+    map.insert(Attribute::Unused, 6);
+    map.insert(Attribute::Athletics, 1);
+    map.insert(Attribute::Melee, 0);
+    map.insert(Attribute::Marksmanship, 0);
+    map.insert(Attribute::Stealth, 0);
+    map.insert(Attribute::FirstAid, 0);
+    return map
+}
+pub fn from_archetype(archetype: &super::RacialArchetype) -> Vec<(Attribute, u8)> {
+    let mut attributes = Vec::new();
+    match archetype {
+        super::RacialArchetype::Undecided => (),
+
+        super::RacialArchetype::Byvine(class) => {
+            attributes.extend(vec![(Attribute::Lore(Lore::Fables), 1)]);
+            match class {
+                super::ByvineClass::Base => (),
+                super::ByvineClass::Goliath => (),
+                super::ByvineClass::RovanKnight => attributes.extend(vec![(Attribute::Athletics, 1), (Attribute::Diplomacy(Race::Rova), 1)]),
+                super::ByvineClass::Blessed => attributes.extend(vec![(Attribute::Magic(spells::CasterType::Fae(spells::FaePatron::Pixie)), 1)]),
+        }},
+        super::RacialArchetype::Clank(class) => {
+            attributes.extend(vec![(Attribute::Engineering, 1)]); 
+            match class {
+                super::ClankClass::Base => (),
+                super::ClankClass::Artisnal => attributes.extend(vec![(Attribute::Diplomacy(Race::InkurtAnami), 1), (Attribute::Lore(Lore::Commerce), 1), (Attribute::Lore(Lore::Art), 1)]),
+                super::ClankClass::Industrial => (),
+                super::ClankClass::Attuned => attributes.extend(vec![(Attribute::Magic(spells::CasterType::Arcane(spells::ArcaneConcept::Design)), 1), (Attribute::Unused, 1)]),
+        }},
+        super::RacialArchetype::Human(class) => {
+            match class {
+                super::HumanClass::Base => (),
+                super::HumanClass::Pathfinder => attributes.extend(vec![(Attribute::Survivalist, 1)]),
+                super::HumanClass::Rifleman => attributes.extend(vec![(Attribute::Marksmanship, 1), (Attribute::Explosives, 1)]),
+                super::HumanClass::Gambler => attributes.extend(vec![(Attribute::Magic(spells::CasterType::Wild), 1)]),
+        }},
+        super::RacialArchetype::MoonElf(class) => {
+            attributes.extend(vec![(Attribute::Survivalist, 1), (Attribute::Unused, 1)]); 
+            match class {
+                super::MoonElfClass::Base => (),
+                super::MoonElfClass::CerudantRanger => attributes.extend(vec![(Attribute::Diplomacy(Race::Cerudant), 1), (Attribute::Unused, 1)]),
+                super::MoonElfClass::StarMage => attributes.extend(vec![(Attribute::Magic(spells::CasterType::Arcane(spells::ArcaneConcept::Astral)), 1), (Attribute::Unused, 1)]),
+                super::MoonElfClass::MoonCleric => attributes.extend(vec![(Attribute::Magic(spells::CasterType::Fae(spells::FaePatron::Sylviel)), 1)]),
+        }},
+        super::RacialArchetype::MystFae(class) => {
+            match class {
+                super::MystFaeClass::Base => (),
+                super::MystFaeClass::WhispersOfWar => (),
+                super::MystFaeClass::WhispersOfTheUnseen => attributes.extend(vec![(Attribute::Unused, 1)]),
+                super::MystFaeClass::WhispersOfTheLeylines => attributes.extend(vec![(Attribute::Magic(spells::CasterType::Wild), 1)]),
+        }},
+        super::RacialArchetype::Treekin(class) => {
+            match class {
+                super::TreekinClass::Base => (),
+                super::TreekinClass::IronBark => attributes.extend(vec![(Attribute::Melee, 1)]),
+                super::TreekinClass::NaturalResearcher => attributes.extend(vec![(Attribute::Lore(Lore::Beasts), 1), (Attribute::Lore(Lore::Plants), 1), (Attribute::Unused, 1)]),
+                super::TreekinClass::GrowthMage => attributes.extend(vec![(Attribute::Magic(spells::CasterType::Arcane(spells::ArcaneConcept::Life)), 1), (Attribute::Unused, 1)]),
+        }},
+        super::RacialArchetype::Wyvren(class) => {
+            match class {
+                super::WyvrenClass::Base => (),
+                super::WyvrenClass::RecklessEngineer => attributes.extend(vec![(Attribute::Engineering, 1)]),
+                super::WyvrenClass::ForgeHeart => attributes.extend(vec![(Attribute::Magic(spells::CasterType::Fae(spells::FaePatron::ForgeSprite)), 1), (Attribute::Blacksmith, 1)]),
+                super::WyvrenClass::WildfireMage => attributes.extend(vec![(Attribute::Magic(spells::CasterType::Arcane(spells::ArcaneConcept::Ignition)), 1), (Attribute::Unused, 1)]),
+        }},
+    };
+    attributes
 }

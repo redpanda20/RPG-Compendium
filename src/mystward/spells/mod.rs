@@ -12,12 +12,20 @@ pub struct Spell {
 	pub description: String,
 	pub flavour_text: Option<String>
 }
-#[derive(PartialEq, Clone)]
+#[derive(Eq, PartialEq, Clone, Hash)]
+#[derive(serde::Serialize, serde::Deserialize)]
+pub enum CasterType {
+	Arcane(ArcaneConcept),
+	Fae(FaePatron),
+	Wild
+}
+#[derive(Clone)]
 #[derive(serde::Serialize, serde::Deserialize)]
 pub enum SpellType {
 	None,
 	Arcane(std::collections::HashSet<ArcaneConcept>),
-	Fae(FaePatron)
+	Fae(FaePatron),
+	Wild
 }
 impl Default for SpellType {
     fn default() -> Self {
@@ -35,7 +43,7 @@ pub enum ArcaneConcept {
 	Widsom,
 	Entropy
 }
-#[derive(PartialEq, Clone, Copy)]
+#[derive(Eq, PartialEq, Hash, Clone, Copy)]
 #[derive(serde::Serialize, serde::Deserialize)]
 pub enum FaePatron {
 	Generic,

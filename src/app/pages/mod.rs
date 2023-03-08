@@ -148,6 +148,7 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 					}
 				},
 				spells::SpellType::None => (),
+				spells::SpellType::Wild => (),
 				
 			}
 		});
@@ -155,7 +156,10 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 		let filtered_spells: Vec<spells::Spell> = match selected_type {
 			spells::SpellType::None => {
 				content.all_spells.clone()
-			}
+			},
+			spells::SpellType::Wild => {
+				content.all_spells.clone()
+			},
 			spells::SpellType::Arcane(selected_concepts) => {
 				content.all_spells.clone()
 					.into_iter()
