@@ -3,6 +3,7 @@ use crate::resources::{icon, defines};
 mod arcane;
 mod fae;
 
+#[derive(Clone)]
 pub struct Spell {
 	pub spell_type: SpellType,
 	pub tags: Vec<SpellTags>,

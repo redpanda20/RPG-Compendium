@@ -32,8 +32,10 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 	let Page::Compendium(selected_type) = parent.current_page.clone() else {
 		return
 	};
+	let Some(content) = &parent.mystward_content else {
+		return
+	};
 
-	let all_spells = spells::get_all_spells(ctx);
 
 	egui::CentralPanel::default().show(ctx, |ui| {
 	egui::ScrollArea::vertical().show(ui, |ui| {
@@ -150,13 +152,12 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 			}
 		});
 
-
 		let filtered_spells: Vec<spells::Spell> = match selected_type {
 			spells::SpellType::None => {
-				all_spells
+				content.all_spells.clone()
 			}
 			spells::SpellType::Arcane(selected_concepts) => {
-				all_spells
+				content.all_spells.clone()
 					.into_iter()
 					.filter(|spell| match &spell.spell_type {
 						spells::SpellType::Arcane(concepts) => selected_concepts.is_empty() || !concepts.is_disjoint(&selected_concepts),
@@ -164,7 +165,7 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 					.collect()
 			},
 			spells::SpellType::Fae(selected_patron) => {
-				all_spells
+				content.all_spells.clone()
 					.into_iter()
 					.filter(|spell| match spell.spell_type {
 					spells::SpellType::Fae(patron) => selected_patron == spells::FaePatron::Generic || patron == selected_patron,
@@ -178,7 +179,6 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 		let spacing = (ui.available_width() - content_width * (row_size) as f32 - 10.0 * (row_size - 1) as f32) / 2.0;	
 
 		ui.add_space(5.0);
-		// ui.add( egui::Separator::default());
 		ui.add( egui::Separator::default().horizontal().shrink( spacing ));
 		ui.add_space(10.0);
 
@@ -204,7 +204,7 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 
 			ui.add_space(spacing);
 
-		})
+		});
 
 	});
 	});
@@ -215,33 +215,35 @@ pub fn show_character(parent: &mut super::App, ctx: &egui::Context, _frame: &mut
 		return
 	};	
 
-	let _item_list = character::items::load_requisition_items();
-
 	egui::CentralPanel::default().show(ctx, |ui| {
-		egui::ScrollArea::vertical().show(ui, |ui| {
+		egui::ScrollArea::vertical()
+			.auto_shrink([false, false])
+			.drag_to_scroll(true)
+			.show(ui, |ui| {
 
 
-		if let Some(character) = parent.current_user.get_character() {
+			if let Some(character) = parent.current_user.get_character() {
 
-				let width = (ui.available_width() - 100.0).clamp(200.0, 1500.0);
-				let spacing = (ui.available_width() - width) / 2.0;
+			let width = (ui.available_width() - 100.0).clamp(200.0, 1500.0);
+			let spacing = (ui.available_width() - width) / 2.0;
 
-				ui.horizontal(|ui| {
-					ui.add_space(spacing);
-					character.show(&mut parent.loader, details, ui, ctx, width);
-				});
+			ui.horizontal(|ui| {
+				ui.add_space(spacing);
+				character.show(&mut parent.loader, details, ui, ctx, width);
+				// ui.add_space(spacing);
+			});
 
-		} else {
+			} else {
 
-			ui.label("No character available");
-			if ui.button("Create character").clicked() {
-				if parent.current_popup.is_none() {
-					parent.current_popup = popups::Popup::CreateCharacter(popups::CharacterDetails::new());
-				}
+				ui.label("No character available");
+				if ui.button("Create character").clicked() {
+					if parent.current_popup.is_none() {
+						parent.current_popup = popups::Popup::CreateCharacter(popups::CharacterDetails::new());
+					}
 
+				};
 			};
-		};
-	});
+		});
 
 	});
 }

@@ -49,11 +49,25 @@ impl Item {
 	}
 }
 
-
+#[derive(Clone)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct ItemList {
 	pub items: Vec<Item>
 }
-
+impl ItemList {
+	pub fn show(&self, ui: &mut egui::Ui) {
+		ui.centered_and_justified(|ui| {
+			ui.label(egui::RichText::new("Items").size(24.0));
+		});
+		ui.separator();
+		ui.vertical(|ui| {
+			for item in &self.items {
+				item.show(ui);
+				ui.add_space(10.0);
+			}
+		});
+	}
+}
 pub fn load_requisition_items() -> ItemList {
 	ItemList { items: vec![
 

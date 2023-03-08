@@ -1,7 +1,7 @@
 use egui::*;
 
 use crate::resources::{loader, icon, defines};
-use crate::mystward::{spells, character};
+use crate::mystward::{self, spells, character};
 
 use crate::shortcuts;
 use crate::user;
@@ -24,6 +24,9 @@ pub struct App {
 
 	#[serde(skip)]
 	pub loader: loader::Loader,
+
+	#[serde(skip)]
+	pub mystward_content: Option<mystward::Content>,
 }
 
 impl Default for App {
@@ -36,6 +39,8 @@ impl Default for App {
 			loader: loader::Loader::default(),
             current_page: pages::Page::Home,
 			current_popup: popups::Popup::None,
+
+			mystward_content: None,
 		}
     }
 }
@@ -46,7 +51,10 @@ impl App {
 		let Some(storage) = cc.storage else {
 			return Self::default()
 		};
-		eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default()
+		let mut new: App = eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
+		new.mystward_content = Some(mystward::new(&cc.egui_ctx));
+
+		return new
 	}
 }
 
