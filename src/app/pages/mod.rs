@@ -32,10 +32,6 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 	let Page::Compendium(selected_type) = parent.current_page.clone() else {
 		return
 	};
-	let Some(content) = &parent.mystward_content else {
-		return
-	};
-
 
 	egui::CentralPanel::default().show(ctx, |ui| {
 	egui::ScrollArea::vertical().show(ui, |ui| {
@@ -155,13 +151,13 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 
 		let filtered_spells: Vec<spells::Spell> = match selected_type {
 			spells::SpellType::None => {
-				content.all_spells.clone()
+				spells::get_all_spells(ctx)
 			},
 			spells::SpellType::Wild => {
-				content.all_spells.clone()
+				spells::get_all_spells(ctx)
 			},
 			spells::SpellType::Arcane(selected_concepts) => {
-				content.all_spells.clone()
+				spells::get_all_spells(ctx)
 					.into_iter()
 					.filter(|spell| match &spell.spell_type {
 						spells::SpellType::Arcane(concepts) => selected_concepts.is_empty() || !concepts.is_disjoint(&selected_concepts),
@@ -169,7 +165,7 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 					.collect()
 			},
 			spells::SpellType::Fae(selected_patron) => {
-				content.all_spells.clone()
+				spells::get_all_spells(ctx)
 					.into_iter()
 					.filter(|spell| match spell.spell_type {
 					spells::SpellType::Fae(patron) => selected_patron == spells::FaePatron::Generic || patron == selected_patron,
@@ -196,7 +192,7 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 				.show(ui, |ui| {
 				let mut row_length = 0;
 				for spell in filtered_spells {
-					spell.show(ui, ctx);
+					spell.show(ui, ctx, content_width);
 
 					row_length += 1;
 					if row_length >= row_size {

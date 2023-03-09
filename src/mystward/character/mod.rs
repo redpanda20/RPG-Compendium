@@ -281,17 +281,23 @@ impl Character {
 	}
 
 	fn get_picture(&mut self, size: egui::Vec2, loader: &mut loader::Loader, ctx: &egui::Context, ui: &mut egui::Ui) {
-		let (id, _) = self.character_info.profile_image.get().unwrap_or_else( ||
-			if let Some(file_raw) = &self.character_info.image_storage {
-				self.update_picture(ctx, file_raw.to_vec());
-				self.character_info.profile_image.get().unwrap()
-			} else {
-				icon::Icon::from_svg_responsive_with_size(
-					defines::NO_IMAGE.to_vec(),
-					[300, 300], ctx)
-					.get(ctx)	
-			}
-		);
+		let id = match self.character_info.profile_image.get() {
+			Some((id, _)) => id,
+			None => {
+				if let Some(file_raw) = &self.character_info.image_storage {
+					self.update_picture(ctx, file_raw.to_vec());
+					let (id, _) = self.character_info.profile_image.get().unwrap();
+					id
+				} else {
+					if ui.add(
+						egui::Button::new("Character has no image")
+					).double_clicked() {
+						loader.file_dialog(loader::FileUsage::CharacterPicture)
+					};
+					return;
+				}
+			},
+		};
 		ui.centered_and_justified(|ui| {
 			if ui.add(
 				egui::ImageButton::new(id, size)

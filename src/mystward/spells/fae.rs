@@ -11,7 +11,7 @@ pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
 	Spell{
 		spell_type: SpellType::Fae(FaePatron::Generic),
 		tags: vec![
-			SpellTags::SingleTarget {targets: 1},
+			SpellTags::Aura,
 		],
 		name: String::from("Blessing of Protection"),
 		symbols: vec![
@@ -23,7 +23,7 @@ pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
 	Spell{
 		spell_type: SpellType::Fae(FaePatron::Generic),
 		tags: vec![
-			SpellTags::SingleTarget {targets: 1},
+			SpellTags::Aura,
 		],
 		name: String::from("Bless Blade"),
 		symbols: vec![
@@ -35,7 +35,7 @@ pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
 	Spell{
 		spell_type: SpellType::Fae(FaePatron::Generic),
 		tags: vec![
-			SpellTags::SelfTarget,
+			SpellTags::Aura,
 		],
 		name: String::from("Blessing of the Pilgrim"),
 		symbols: vec![
@@ -47,7 +47,7 @@ pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
 	Spell{
 		spell_type: SpellType::Fae(FaePatron::Generic),
 		tags: vec![
-			SpellTags::SelfTarget,
+			SpellTags::Aura,
 		],
 		name: String::from("Blessing of Grace"),
 		symbols: vec![
@@ -59,7 +59,7 @@ pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
 	Spell{
 		spell_type: SpellType::Fae(FaePatron::Pixie),
 		tags: vec![
-			SpellTags::SelfTarget,
+			SpellTags::Aura,
 		],
 		name: String::from("Determination"),
 		symbols: vec![
@@ -72,7 +72,7 @@ pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
 	Spell{
 		spell_type: SpellType::Fae(FaePatron::Pixie),
 		tags: vec![
-			SpellTags::SelfTarget,
+			SpellTags::Aura,
 		],
 		name: String::from("Regeneration"),
 		symbols: vec![
@@ -85,7 +85,7 @@ pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
 	Spell{
 		spell_type: SpellType::Fae(FaePatron::Pixie),
 		tags: vec![
-			SpellTags::SingleTarget { targets: 1 }
+			SpellTags::Aura,
 		],
 		name: String::from("Fae Luck"),
 		symbols: vec![
@@ -98,7 +98,7 @@ pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
 	Spell{
 		spell_type: SpellType::Fae(FaePatron::Sylviel),
 		tags: vec![
-			SpellTags::SingleTarget { targets: 1 },
+			SpellTags::Aura,
 		],
 		name: String::from("Illuminating Prayer"),
 		symbols: vec![
@@ -111,7 +111,7 @@ pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
 	Spell{
 		spell_type: SpellType::Fae(FaePatron::Sylviel),
 		tags: vec![
-			SpellTags::SelfTarget,
+			SpellTags::Aura,
 		],
 		name: String::from("Prayer of Silence"),
 		symbols: vec![
@@ -123,7 +123,9 @@ pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
 
 	Spell{
 		spell_type: SpellType::Fae(FaePatron::Sylviel),
-		tags: vec![],
+		tags: vec![
+			SpellTags::SelfTarget,
+		],
 		name: String::from("Prayer to the Ancestors"),
 		symbols: vec![
 			neg_two.get(ctx),
@@ -135,7 +137,7 @@ pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
 	Spell{
 		spell_type: SpellType::Fae(FaePatron::ForgeSprite),
 		tags: vec![
-			SpellTags::SelfTarget,
+			SpellTags::Aura,
 			SpellTags::Attack,
 		],
 		name: String::from("Flame Breath"),
@@ -149,7 +151,7 @@ pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
 	Spell{
 		spell_type: SpellType::Fae(FaePatron::ForgeSprite),
 		tags: vec![
-			SpellTags::SelfTarget,
+			SpellTags::Aura,
 			SpellTags::Attack,
 			SpellTags::AreaOfEffect { range_bands: 0..1 }
 		],
@@ -164,7 +166,7 @@ pub fn get_fae_spells(ctx: &egui::Context) -> Vec<Spell> {
 	Spell{
 		spell_type: SpellType::Fae(FaePatron::ForgeSprite),
 		tags: vec![
-			SpellTags::SingleTarget { targets: 1 },
+			SpellTags::Aura,
 		],
 		name: String::from("Forge Heart Golem"),
 		symbols: vec![

@@ -10,22 +10,22 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 	let wisdom = icon::Icon::from_svg_constant(defines::WISDOM.to_vec(), ctx);
 	let entropy = icon::Icon::from_svg_constant(defines::ENTROPY.to_vec(), ctx);
 	return vec![
-	Spell{
-		spell_type: SpellType::Arcane(HashSet::from([
-			ArcaneConcept::Ignition,
-			ArcaneConcept::Ignition,
-			ArcaneConcept::Design])),
-		tags: vec![
-			SpellTags::Attack,
-			SpellTags::SingleTarget{targets: 1},
-			SpellTags::ArmourPiercing],
-		name: String::from("Fire Lance"),
-		symbols: vec![
-			ignition.get(ctx),
-			ignition.get(ctx),
-			design.get(ctx)],
-		description: String::from("Ignites target for further AP damage at the end of the next round."),
-		flavour_text: None},
+	// Spell{
+	// 	spell_type: SpellType::Arcane(HashSet::from([
+	// 		ArcaneConcept::Ignition,
+	// 		ArcaneConcept::Ignition,
+	// 		ArcaneConcept::Design])),
+	// 	tags: vec![
+	// 		SpellTags::Attack,
+	// 		SpellTags::SingleTarget{targets: 1},
+	// 		SpellTags::ArmourPiercing],
+	// 	name: String::from("Fire Lance"),
+	// 	symbols: vec![
+	// 		ignition.get(ctx),
+	// 		ignition.get(ctx),
+	// 		design.get(ctx)],
+	// 	description: String::from("Ignites target for further AP damage at the end of the next round."),
+	// 	flavour_text: None},
 
 	Spell{
 		spell_type: SpellType::Arcane(HashSet::from([
@@ -203,7 +203,7 @@ pub fn get_arcane_spells(ctx: &egui::Context) -> Vec<Spell> {
 		symbols: vec![
 			life.get(ctx),
 			entropy.get(ctx)],
-		description: String::from("<edium range. Damage someone’s life force directly, ignoring all cover, armour or other defences. Is reversed by Revive."),
+		description: String::from("Medium range. Damage someone’s life force directly, ignoring all cover, armour or other defences. Is reversed by Revive."),
 		flavour_text: None},
 
 	Spell{

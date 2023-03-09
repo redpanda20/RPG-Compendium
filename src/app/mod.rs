@@ -6,9 +6,9 @@ use crate::mystward::{self, spells, character};
 use crate::shortcuts;
 use crate::user;
 
+mod pages;
 mod popups;
 mod menubar;
-pub mod pages;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct App {
@@ -37,7 +37,8 @@ impl Default for App {
 			current_user: user::User::default(),
 
 			loader: loader::Loader::default(),
-            current_page: pages::Page::Home,
+			// TODO! remove once more features added
+            current_page: pages::Page::Compendium(spells::SpellType::None),
 			current_popup: popups::Popup::None,
 
 			mystward_content: None,
@@ -99,6 +100,8 @@ impl eframe::App for App {
 
 		// Handle shortcut inputs
 		ctx.input_mut(|i| {
+			i.raw.pixels_per_point = frame.info().native_pixels_per_point;
+
 			// Cannot shutdown web application
 			#[cfg(not(target_arch = "wasm32"))]
 			if i.consume_shortcut(&shortcuts::SHUTDOWN) {
