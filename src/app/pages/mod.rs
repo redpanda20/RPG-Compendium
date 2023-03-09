@@ -234,8 +234,22 @@ pub fn show_character(parent: &mut super::App, ctx: &egui::Context, _frame: &mut
 			ui.horizontal(|ui| {
 				ui.add_space(spacing);
 				character.show(&mut parent.loader, details, ui, ctx, width);
-				// ui.add_space(spacing);
 			});
+
+			ui.add_space(20.0);
+
+			ui.vertical_centered(|ui| {
+				if ui.add(
+					egui::Button::new("Delete Character")
+						.frame(true)
+						.fill(egui::Color32::DARK_RED)
+				).on_hover_text("There is no confirmation screen")
+				.clicked() {
+					parent.current_user.remove_character();
+				};
+			});
+
+			ui.add_space(40.0);
 
 			} else {
 

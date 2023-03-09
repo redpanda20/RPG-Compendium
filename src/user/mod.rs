@@ -97,4 +97,8 @@ impl User {
 	pub fn set_character(&mut self, name: String, racial_archetype: character::RacialArchetype) {
 		self.character = Some(character::Character::new(name, racial_archetype));
 	}
+
+	pub fn remove_character(&mut self) {
+		self.character = None
+	}
 }

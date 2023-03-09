@@ -217,14 +217,12 @@ pub fn show_account(parent: &mut super::App, ctx: &egui::Context) {
 pub struct CharacterDetails{
 	pub name: String,
 	pub archetype: character::RacialArchetype,
-	pub attributes: Vec<(character::Attribute, u8)>,
 }
 impl CharacterDetails {
 	pub fn new() -> Self {
 		Self {
 			name: String::from(""),
 			archetype: character::RacialArchetype::Undecided,
-			attributes: Vec::new()
 		}
 	}
 }
@@ -255,7 +253,7 @@ pub fn show_create_character(parent: &mut super::App, ctx: &egui::Context) -> (b
 				character::RacialArchetype::Clank(_) => "Clank",
 				character::RacialArchetype::Human(_) => "Human",
 				character::RacialArchetype::MoonElf(_) => "Moon Elf",
-				character::RacialArchetype::MystFae(_) => "MystFae",
+				character::RacialArchetype::MystFae(_) => "Myst Fae",
 				character::RacialArchetype::Treekin(_) => "Treekin",
 				character::RacialArchetype::Wyvren(_) => "Wyvren",
 			})
@@ -268,7 +266,7 @@ pub fn show_create_character(parent: &mut super::App, ctx: &egui::Context) -> (b
 				ui.selectable_value(&mut details.archetype, character::RacialArchetype::Treekin(character::TreekinClass::Base), "Treekin");
 				ui.selectable_value(&mut details.archetype, character::RacialArchetype::Wyvren(character::WyvrenClass::Base), "Wyvren");
 
-			});
+			});		
 
 		let archetype_info = details.archetype.get_variants();
 
@@ -283,6 +281,49 @@ pub fn show_create_character(parent: &mut super::App, ctx: &egui::Context) -> (b
 					}
 				});
 		}
+
+		let mut attributes: Vec<(character::Attribute, u8)> = character::attributes::default().to_vec();
+		for (attribute, quanity) in character::attributes::from_archetype(&details.archetype) {
+			let pos = attributes.iter().position(|(att, _)| att == &attribute);
+			match pos {
+				Some(index) => attributes[index].1 = attributes[index].1 + quanity,
+				None => attributes.push((attribute, quanity)),
+			}
+		}
+
+		let traits = character::traits::from_archetype(&details.archetype);
+
+		ui.columns(2, |column| {
+			column[0].vertical(|ui| {
+				ui.vertical_centered(|ui| {
+					ui.label(egui::RichText::new("Attributes").size(24.0));
+				});
+				ui.separator();
+		
+				if let Some((_, quantity)) = attributes.iter().find(|(att, _)| att == &character::Attribute::Unused) {
+					ui.label( egui::RichText::new(format!("{}: {}", character::Attribute::Unused.to_string(), quantity)).size(16.0) );
+					ui.add_space(10.0);
+				}
+		
+				for (attribute, quantity) in attributes {
+					if attribute == character::Attribute::Unused {continue;}
+					ui.label( egui::RichText::new(format!("{}: {}", attribute.to_string(), quantity)).size(16.0) );
+				}
+			});
+			column[1].vertical(|ui| {
+				ui.vertical_centered(|ui| {
+					ui.label(egui::RichText::new("Traits").size(24.0));
+				});
+				ui.separator();
+	
+				for char_trait in &traits {
+					ui.label( egui::RichText::new(char_trait.title.clone()).size(20.0) );
+					ui.label( egui::RichText::new(char_trait.text.clone()).size(12.0) );
+					ui.add_space(4.0);
+				}
+			});
+		});
+
 
 		button = ui.button("Create Character").clicked();
 	});

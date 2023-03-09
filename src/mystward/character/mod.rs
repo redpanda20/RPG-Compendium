@@ -3,9 +3,11 @@ use crate::resources::{image, icon, defines, loader};
 pub mod racial_archetypes;
 pub mod attributes;
 pub mod items;
+pub mod traits;
 
 pub use racial_archetypes::*;
 pub use attributes::Attribute;
+pub use traits::Trait;
 
 use super::spells;
 
@@ -14,7 +16,8 @@ use super::spells;
 pub struct Character {
 	pub character_info: CharacterInfo,
 	pub archetype: RacialArchetype,
-	pub attributes: std::collections::HashMap<Attribute, u8>,
+	pub attributes: Vec<(Attribute, u8)>,
+	pub traits: Vec<Trait>,
 	pub items: items::ItemList,
 	pub notes: String,
 }
@@ -44,20 +47,18 @@ impl CharacterSheetDetails {
 }
 
 impl Character {
-	pub fn new(name: String, racial_archetype: RacialArchetype) -> Self {
-		let mut attributes = attributes::default();
+	pub fn new(name: String, archetype: RacialArchetype) -> Self {
 
-		for (attribute, quanity) in attributes::from_archetype(&racial_archetype) {
-			let existing = attributes.get(&attribute);
-			match existing {
-				Some(old_quantity) => {
-					attributes.insert(attribute, old_quantity + quanity);
-				},
-				None => {
-					attributes.insert(attribute, quanity);
-				},
-			};
+		let mut attributes: Vec<(Attribute, u8)> = attributes::default().to_vec();
+		for (attribute, quanity) in attributes::from_archetype(&archetype) {
+			let pos = attributes.iter().position(|(att, _)| att == &attribute);
+			match pos {
+				Some(index) => attributes[index].1 = attributes[index].1 + quanity,
+				None => attributes.push((attribute, quanity)),
+			}
 		}
+
+		let traits = traits::from_archetype(&archetype);
 
 		Self {
 			character_info: CharacterInfo {
@@ -67,8 +68,9 @@ impl Character {
 				profile_image: image::OptionalImage::default(),
 				image_storage: None
 			},
-			archetype: racial_archetype,
+			archetype,
 			attributes,
+			traits,
 			items: items::load_requisition_items(),
 			notes: String::new() }
 	}
@@ -87,15 +89,16 @@ impl Character {
 				.show(ui, |ui| {
 				if width < 800.0 {
 					self.show_attributes(ui);
+					self.show_traits(ui);
 					self.items.show(ui);
 				} else {
-					ui.columns(2, |column| {
+					ui.columns(3, |column| {
 						self.show_attributes(&mut column[0]);
-						self.items.show(&mut column[1]);
+						self.show_traits(&mut column[1]);
+						self.items.show(&mut column[2]);
 					});
 				}
-			});
-
+			});			
 		});
 	}
 
@@ -240,19 +243,34 @@ impl Character {
 
 	fn show_attributes(&self, ui: &mut egui::Ui) {
 		ui.vertical(|ui| {
-			ui.centered_and_justified(|ui| {
+			ui.vertical_centered(|ui| {
 				ui.label(egui::RichText::new("Attributes").size(24.0));
 			});
 			ui.separator();
 
-			if let Some(quantity) = self.attributes.get(&Attribute::Unused) {
+			if let Some((_, quantity)) = &self.attributes.iter().find(|(att, _)| att == &Attribute::Unused) {
 				ui.label( egui::RichText::new(format!("{}: {}", Attribute::Unused.to_string(), quantity)).size(16.0) );
 				ui.add_space(10.0);
 			}
 
 			for (attribute, quantity) in &self.attributes {
-				if *attribute == Attribute::Unused {continue;}
+				if attribute == &Attribute::Unused {continue;}
 				ui.label( egui::RichText::new(format!("{}: {}", attribute.to_string(), quantity)).size(16.0) );
+			}
+		});
+	}
+
+	fn show_traits(&self, ui: &mut egui::Ui) {
+		ui.vertical(|ui| {
+			ui.vertical_centered(|ui| {
+				ui.label(egui::RichText::new("Traits").size(24.0));
+			});
+			ui.separator();
+
+			for char_trait in &self.traits {
+				ui.label( egui::RichText::new(char_trait.title.clone()).size(20.0) );
+				ui.label( egui::RichText::new(char_trait.text.clone()).size(12.0) );
+				ui.add_space(4.0);
 			}
 		});
 	}
