@@ -149,18 +149,18 @@ impl Character {
 
 		ui.with_layout(
 			match vertical_layout {
-				true => egui::Layout::top_down_justified(egui::Align::Min),
+				true => egui::Layout::top_down(egui::Align::Min),
 				false => egui::Layout::left_to_right(egui::Align::Min),
 			},
 			|ui| {
 
 				if vertical_layout {
 					ui.vertical_centered(|ui| {
-						self.get_picture(egui::vec2(150.0, 150.0), loader, ctx, ui);
+						self.get_picture(loader, ctx, ui);
 					});
 				} else {
 					ui.horizontal_centered(|ui| {
-						self.get_picture(egui::vec2(350.0, 350.0), loader, ctx, ui);
+						self.get_picture(loader, ctx, ui);
 					});
 				} 
 				
@@ -280,11 +280,11 @@ impl Character {
 		self.character_info.image_storage = Some(file_raw.clone());
 	}
 
-	fn get_picture(&mut self, size: egui::Vec2, loader: &mut loader::Loader, ctx: &egui::Context, ui: &mut egui::Ui) {
-		let (id, _) = &self.character_info.profile_image.get(ctx);
+	fn get_picture(&mut self, loader: &mut loader::Loader, ctx: &egui::Context, ui: &mut egui::Ui) {
+		let (id, size) = &self.character_info.profile_image.get(ctx);
 
 		if ui.add(
-			egui::ImageButton::new(*id, size)
+			egui::ImageButton::new(*id, *size)
 		).clicked() {
 			loader.file_dialog(loader::FileUsage::CharacterPicture)
 		};
