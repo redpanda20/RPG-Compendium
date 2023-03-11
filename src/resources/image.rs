@@ -19,25 +19,30 @@ fn image_to_texture(image: Vec<u8>) -> egui::ColorImage {
 
 #[derive(Clone)]
 pub struct OptionalImage {
-	pub profile_picture: Option<egui::TextureHandle>,
+	image: Option<egui::TextureHandle>,
+	default: Option<egui::TextureHandle>,
+	is_set: bool,
 }
 impl Default for OptionalImage {
 	
 	fn default() -> Self {
 		Self {
-			profile_picture: None,
+			image: None,
+			default: None,
+			is_set: false
 		}
 	}
 }
 impl OptionalImage {
 	
 	fn update(&mut self, ctx: &egui::Context, image: impl Into<egui::ImageData>) {
-		let Some(handle) = self.profile_picture.as_mut() else {
-			self.profile_picture = Some(ctx.load_texture(
-				"Profile picture",
+		let Some(handle) = self.image.as_mut() else {
+			self.image = Some(ctx.load_texture(
+				"Optional Image",
 				image,
 				Default::default()
 			));
+			self.is_set = true;
 			return;
 		};
 		handle.set(
@@ -53,20 +58,31 @@ impl OptionalImage {
 		);
 	}
 
-	pub fn is_some(&self) -> bool {
-		return self.profile_picture.is_some()
+	pub fn is_set(&self) -> bool {
+		return self.is_set
 	}
 
-	pub fn get(&self, ctx: &egui::Context) -> (egui::TextureId, egui::Vec2) {
-		let image = if let Some(profile) = self.profile_picture.clone() {
-			profile
-		} else {
-			let image = match ctx.style().visuals.dark_mode {
+	pub fn get(&mut self, ctx: &egui::Context) -> (egui::TextureId, egui::Vec2) {
+		if self.is_set {
+			if let Some(image) = &self.image {
+				return (image.id(), image.size_vec2())
+			} else {
+				self.is_set = false;
+			}
+		}
+
+		if self.default.is_none() {
+			let raw_image = match ctx.style().visuals.dark_mode {
 				true => super::defines::SELECT_IMAGE_LIGHT.to_vec(),
 				false => super::defines::SELECT_IMAGE.to_vec()
 			};
-			ctx.load_texture("No Image", image_to_texture(image), Default::default())
-		};
+			self.default = Some(ctx.load_texture(
+				"Optional Image Default",
+				image_to_texture(raw_image),
+				Default::default()));
+		}
+		let image = self.default.as_ref().unwrap();
+		
 		return (image.id(), image.size_vec2())
 	}
 }

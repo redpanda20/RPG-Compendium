@@ -74,7 +74,7 @@ impl User {
 		if !self.is_logged_in {
 			return None
 		}
-		if !self.profile_image.is_some() {
+		if !self.profile_image.is_set() {
 			if let Some(image) = self.image_storage.clone() {
 				self.update_profile_picture(ctx, image);
 			}

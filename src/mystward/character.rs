@@ -146,94 +146,98 @@ impl Character {
 
 			ui.separator()
 		});
-		ui.columns(
-			match vertical_layout { true => 1, false => 2 },
-			|columns| {
 
-			columns[0].vertical(|ui| {
+		ui.with_layout(
+			match vertical_layout {
+				true => egui::Layout::top_down_justified(egui::Align::Min),
+				false => egui::Layout::left_to_right(egui::Align::Min),
+			},
+			|ui| {
 
-		// Image
 				if vertical_layout {
-					self.get_picture(egui::vec2(150.0, 150.0), loader, ctx, ui);
-				}
-
-				ui.add_space(20.0);
-
-		// Biography
-				ui.horizontal(|ui| {
-					if ui.add(
-						egui::ImageButton::new(edit_icon.0, edit_icon.1)
-					).clicked() {
-						details.biography = Some(self.character_info.biography.clone())
-					};
-					ui.label(egui::RichText::new("Biography").size(24.0));
-				});
-				ui.horizontal(|ui| {
-					let mut biography = self.character_info.biography.as_str();
-					let text: &mut dyn egui::TextBuffer = match &mut details.biography {
-						Some(text) => text, // Editable text
-						None => &mut biography, // Uneditable text
-					};
-					ui.add_space(10.0);
-					if egui::TextEdit::multiline(text)
-						.hint_text("What is your characters background?")
-						.desired_width(ui.available_width())
-						.show(ui)
-						.response
-					.lost_focus() {
-						if let Some(text) = &details.biography {
-							self.character_info.biography = text.clone();
-						}
-						details.biography = None;
-					};
-				});
+					ui.vertical_centered(|ui| {
+						self.get_picture(egui::vec2(150.0, 150.0), loader, ctx, ui);
+					});
+				} else {
+					ui.horizontal_centered(|ui| {
+						self.get_picture(egui::vec2(350.0, 350.0), loader, ctx, ui);
+					});
+				} 
 				
-		// Appearance
-				ui.horizontal(|ui| {
-					if ui.add(
-						egui::ImageButton::new(edit_icon.0, edit_icon.1)
-					).clicked() {
-						details.appearance = Some(self.character_info.appearance.clone())
-					};
-					ui.label(egui::RichText::new("Biography").size(24.0));
-				});
-				ui.horizontal(|ui| {
-					let mut appearance = self.character_info.appearance.as_str();
-					let text: &mut dyn egui::TextBuffer = match &mut details.appearance {
-						Some(text) => text, // Editable text
-						None => &mut appearance, // Uneditable text
-					};	
-					ui.add_space(10.0);
-					if egui::TextEdit::multiline(text)
-						.hint_text("What does your character look like?")
-						.desired_width(ui.available_width())
-						.show(ui)
-						.response
-					.lost_focus() {
-						if let Some(text) = &details.appearance {
-							self.character_info.appearance = text.clone();
-						}
-						details.appearance = None;
-					};
-				});
+				ui.add_space(10.0);
 
-				ui.label(egui::RichText::new("Player Notes").size(24.0));
-				ui.horizontal(|ui| {
-					ui.add_space(10.0);
-					ui.add(
-						egui::TextEdit::multiline(&mut self.notes)
-						.hint_text("Character or session notes")
-						.desired_width(ui.available_width())
-						.desired_rows(8)
-					);
+				ui.vertical(|ui| {
+
+					// Biography
+					ui.horizontal(|ui| {
+						if ui.add(
+							egui::ImageButton::new(edit_icon.0, edit_icon.1)
+						).clicked() {
+							details.biography = Some(self.character_info.biography.clone())
+						};
+						ui.label(egui::RichText::new("Biography").size(24.0));
+					});
+					ui.horizontal(|ui| {
+						let mut biography = self.character_info.biography.as_str();
+						let text: &mut dyn egui::TextBuffer = match &mut details.biography {
+							Some(text) => text, // Editable text
+							None => &mut biography, // Uneditable text
+						};
+						ui.add_space(10.0);
+						if egui::TextEdit::multiline(text)
+							.hint_text("What is your characters background?")
+							.desired_width(ui.available_width())
+							.show(ui)
+							.response
+						.lost_focus() {
+							if let Some(text) = &details.biography {
+								self.character_info.biography = text.clone();
+							}
+							details.biography = None;
+						};
+					});
+					
+					// Appearance
+					ui.horizontal(|ui| {
+						if ui.add(
+							egui::ImageButton::new(edit_icon.0, edit_icon.1)
+						).clicked() {
+							details.appearance = Some(self.character_info.appearance.clone())
+						};
+						ui.label(egui::RichText::new("Appearance").size(24.0));
+					});
+					ui.horizontal(|ui| {
+						let mut appearance = self.character_info.appearance.as_str();
+						let text: &mut dyn egui::TextBuffer = match &mut details.appearance {
+							Some(text) => text, // Editable text
+							None => &mut appearance, // Uneditable text
+						};	
+						ui.add_space(10.0);
+						if egui::TextEdit::multiline(text)
+							.hint_text("What does your character look like?")
+							.desired_width(ui.available_width())
+							.show(ui)
+							.response
+						.lost_focus() {
+							if let Some(text) = &details.appearance {
+								self.character_info.appearance = text.clone();
+							}
+							details.appearance = None;
+						};
+					});
+
+					ui.label(egui::RichText::new("Player Notes").size(24.0));
+					ui.horizontal(|ui| {
+						ui.add_space(10.0);
+						ui.add(
+							egui::TextEdit::multiline(&mut self.notes)
+							.hint_text("Character or session notes")
+							.desired_width(ui.available_width())
+							.desired_rows(8)
+						);
+					});
 				});
 			});
-
-			if !vertical_layout {
-				self.get_picture(egui::vec2(350.0, 350.0), loader, ctx, &mut columns[1]);
-			}
-
-		});
 		});
 	}
 
@@ -279,12 +283,10 @@ impl Character {
 	fn get_picture(&mut self, size: egui::Vec2, loader: &mut loader::Loader, ctx: &egui::Context, ui: &mut egui::Ui) {
 		let (id, _) = &self.character_info.profile_image.get(ctx);
 
-		ui.vertical_centered(|ui| {
-			if ui.add(
-				egui::ImageButton::new(*id, size)
-			).double_clicked() {
-				loader.file_dialog(loader::FileUsage::CharacterPicture)
-			};
-		});
+		if ui.add(
+			egui::ImageButton::new(*id, size)
+		).clicked() {
+			loader.file_dialog(loader::FileUsage::CharacterPicture)
+		};
 	}
 }
