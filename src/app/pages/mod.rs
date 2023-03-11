@@ -105,9 +105,10 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 							};
 							if active_concepts.contains(concept) {
 								let pos = ui.next_widget_position();
-								let painter = ui.painter();
-								let stroke = egui::Stroke::new(1.0, egui::Color32::WHITE);
-								painter.hline(pos.x..=(pos.x + 24.0 + 2.0 * ui.style().spacing.button_padding.x), pos.y, stroke);
+								ui.painter().hline(
+									pos.x..=(pos.x + 24.0 + 2.0 * ui.style().spacing.button_padding.x),
+									pos.y,
+									ctx.style().visuals.selection.stroke);
 							}
 						});	
 					}
@@ -136,9 +137,10 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 							};
 							if *active_patron == patron {
 								let pos = ui.next_widget_position();
-								let painter = ui.painter();
-								let stroke = egui::Stroke::new(1.0, egui::Color32::WHITE);
-								painter.hline(pos.x..=(pos.x + 24.0 + 2.0 * ui.style().spacing.button_padding.x), pos.y, stroke);
+								ui.painter().hline(
+									pos.x..=(pos.x + 24.0 + 2.0 * ui.style().spacing.button_padding.x),
+									pos.y,
+									ctx.style().visuals.selection.stroke);
 							}
 						});
 					}
@@ -149,7 +151,7 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 			}
 		});
 
-		let filtered_spells: Vec<spells::Spell> = match selected_type {
+		let spell_match_full = match &selected_type {
 			spells::SpellType::None => {
 				spells::get_all_spells(ctx)
 			},
@@ -160,7 +162,7 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 				spells::get_all_spells(ctx)
 					.into_iter()
 					.filter(|spell| match &spell.spell_type {
-						spells::SpellType::Arcane(concepts) => selected_concepts.is_empty() || !concepts.is_disjoint(&selected_concepts),
+						spells::SpellType::Arcane(concepts) => selected_concepts.is_empty() || concepts.is_subset(&selected_concepts),
 						_ => false})
 					.collect()
 			},
@@ -168,30 +170,61 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 				spells::get_all_spells(ctx)
 					.into_iter()
 					.filter(|spell| match spell.spell_type {
-					spells::SpellType::Fae(patron) => selected_patron == spells::FaePatron::Generic || patron == selected_patron,
+					spells::SpellType::Fae(patron) => *selected_patron == spells::FaePatron::Generic || patron == *selected_patron,
 					_ => false })
 					.collect()
 			},
 		};
 
+		let spell_match_partial: Vec<spells::Spell> = match &selected_type {
+			spells::SpellType::None => {
+				Vec::new()
+			},
+			spells::SpellType::Wild => {
+				Vec::new()
+			},
+			spells::SpellType::Arcane(selected_concepts) => {
+				spells::get_all_spells(ctx)
+					.into_iter()
+					.filter(|spell| match &spell.spell_type {
+						spells::SpellType::Arcane(concepts) => !concepts.is_disjoint(&selected_concepts),
+						_ => false})
+					.collect()
+			},
+			spells::SpellType::Fae(selected_patron) => {
+				spells::get_all_spells(ctx)
+					.into_iter()
+					.filter(|spell| match spell.spell_type {
+					spells::SpellType::Fae(patron) => *selected_patron != spells::FaePatron::Generic && patron == spells::FaePatron::Generic,
+					_ => false })
+					.collect()
+			},
+		};
+
+		const MAX_ROW_SIZE: usize = 5;
+
 		let content_width = (ui.available_width() / 6.0).clamp(200.0, 340.0);
-		let row_size = (((ui.available_width() - 200.0) / content_width).floor() as usize).clamp(1, 5);
-		let spacing = (ui.available_width() - content_width * (row_size) as f32 - 10.0 * (row_size - 1) as f32) / 2.0;	
+		// let row_size = (((ui.available_width() - 200.0) / content_width).floor() as usize).clamp(1, MAX_ROW_SIZE);
+		let spacing = (ui.available_width() - content_width * MAX_ROW_SIZE as f32 - 10.0 * (MAX_ROW_SIZE - 1) as f32) / 2.0;	
 
 		ui.add_space(5.0);
 		ui.add( egui::Separator::default().horizontal().shrink( spacing ));
 		ui.add_space(10.0);
 
 		ui.horizontal_top(|ui| {
+			let mut row_size = (((ui.available_width() - 200.0) / content_width).floor() as usize)
+				.clamp(1, MAX_ROW_SIZE);
+			if !spell_match_full.is_empty() && spell_match_full.len() < MAX_ROW_SIZE {
+				row_size = row_size.clamp(1, spell_match_full.len());
+			}
+			ui.add_space((ui.available_width() - content_width * row_size as f32 - 10.0 * (row_size - 1) as f32) / 2.0);
 
-			ui.add_space(spacing);
-
-			egui::Grid::new("content_grid")
+			egui::Grid::new("full match grid")
 				.max_col_width(content_width)
 				.spacing(egui::vec2(10.0, 10.0))
 				.show(ui, |ui| {
 				let mut row_length = 0;
-				for spell in filtered_spells {
+				for spell in spell_match_full {
 					spell.show(ui, ctx, content_width);
 
 					row_length += 1;
@@ -201,11 +234,39 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 					}
 				}
 			});
-
-			ui.add_space(spacing);
-
 		});
 
+		if !spell_match_partial.is_empty() {
+			ui.add_space(10.0);
+			ui.add( egui::Separator::default().horizontal().shrink( spacing ));
+			ui.add_space(10.0);
+	
+			ui.horizontal_top(|ui| {
+				let mut row_size = (((ui.available_width() - 200.0) / content_width).floor() as usize)
+					.clamp(1, MAX_ROW_SIZE);
+				if spell_match_partial.len() < MAX_ROW_SIZE {
+					row_size = row_size.clamp(1, spell_match_partial.len());
+				}
+				ui.add_space((ui.available_width() - content_width * row_size as f32 - 10.0 * (row_size - 1) as f32) / 2.0);
+	
+				egui::Grid::new("partial match grid")
+					.max_col_width(content_width)
+					.spacing(egui::vec2(10.0, 10.0))
+					.show(ui, |ui| {
+					let mut row_length = 0;
+					for spell in spell_match_partial {
+						spell.show(ui, ctx, content_width);
+	
+						row_length += 1;
+						if row_length >= row_size {
+							row_length = 0;
+							ui.end_row();
+						}
+					}
+				});
+			});
+		}
+	
 	});
 	});
 }
