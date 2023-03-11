@@ -79,10 +79,7 @@ impl User {
 				self.update_profile_picture(ctx, image);
 			}
 		}
-		let Some((id, size)) = self.profile_image.get() else {
-			return None
-		};
-		return Some((id, size))
+		return Some(self.profile_image.get(ctx))
 	}
 	pub fn update_profile_picture(&mut self, ctx: &egui::Context, raw_file: Vec<u8>) {
 		if self.is_logged_in {

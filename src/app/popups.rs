@@ -1,9 +1,5 @@
 use crate::mystward::character;
 
-use super::icon;
-use super::defines;
-
-// #[derive(PartialEq)]
 pub enum Popup {
 	None,
 	LogIn(UserDetails),
@@ -184,17 +180,13 @@ pub fn show_account(parent: &mut super::App, ctx: &egui::Context) {
 			ui.label(egui::RichText::new("Logged in").weak());
 		});
 
-		let (id, size) = parent.current_user.get_profile_picture(ctx).unwrap_or_else( ||
-			icon::Icon::from_svg_responsive_with_size(
-				defines::NO_IMAGE.to_vec(),
-				[128, 128], ctx)
-				.get(ctx)
-		);
-		if ui.add(
-			egui::ImageButton::new(id, size)
-		).clicked() {
-			parent.loader.file_dialog(super::loader::FileUsage::ProfilePicture);
-		};
+		if let Some((id, size)) = parent.current_user.get_profile_picture(ctx) {
+			if ui.add(
+				egui::ImageButton::new(id, size)
+			).clicked() {
+				parent.loader.file_dialog(super::loader::FileUsage::ProfilePicture);
+			};
+		}		
 
 		logout = ui.button("Log Out").clicked();
 	});

@@ -131,7 +131,7 @@ impl Character {
 					.show(ui)
 					.response
 				.lost_focus() {
-					if let Some(name) = &details.name { // && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+					if let Some(name) = &details.name {
 						self.character_info.name = name.clone();
 					}
 					details.name = None;
@@ -181,7 +181,7 @@ impl Character {
 						.show(ui)
 						.response
 					.lost_focus() {
-						if let Some(text) = &details.biography { // && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+						if let Some(text) = &details.biography {
 							self.character_info.biography = text.clone();
 						}
 						details.biography = None;
@@ -210,17 +210,13 @@ impl Character {
 						.show(ui)
 						.response
 					.lost_focus() {
-						if let Some(text) = &details.appearance { // && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+						if let Some(text) = &details.appearance {
 							self.character_info.appearance = text.clone();
 						}
 						details.appearance = None;
 					};
 				});
 
-				// ui.horizontal(|ui| {
-				// 	ui.add_space(38.0);
-				// 	ui.label(egui::RichText::new("Player Notes").size(24.0));
-				// });
 				ui.label(egui::RichText::new("Player Notes").size(24.0));
 				ui.horizontal(|ui| {
 					ui.add_space(10.0);
@@ -281,26 +277,11 @@ impl Character {
 	}
 
 	fn get_picture(&mut self, size: egui::Vec2, loader: &mut loader::Loader, ctx: &egui::Context, ui: &mut egui::Ui) {
-		let id = match self.character_info.profile_image.get() {
-			Some((id, _)) => id,
-			None => {
-				if let Some(file_raw) = &self.character_info.image_storage {
-					self.update_picture(ctx, file_raw.to_vec());
-					let (id, _) = self.character_info.profile_image.get().unwrap();
-					id
-				} else {
-					if ui.add(
-						egui::Button::new("Character has no image")
-					).double_clicked() {
-						loader.file_dialog(loader::FileUsage::CharacterPicture)
-					};
-					return;
-				}
-			},
-		};
-		ui.centered_and_justified(|ui| {
+		let (id, _) = &self.character_info.profile_image.get(ctx);
+
+		ui.vertical_centered(|ui| {
 			if ui.add(
-				egui::ImageButton::new(id, size)
+				egui::ImageButton::new(*id, size)
 			).double_clicked() {
 				loader.file_dialog(loader::FileUsage::CharacterPicture)
 			};
