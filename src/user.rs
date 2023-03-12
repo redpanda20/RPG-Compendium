@@ -116,6 +116,7 @@ impl User {
 				None => self.characters.push(character.clone()),
 			}
 		}
+		self.characters.retain(|char| &char.character_info.name != &new_character.character_info.name);
 		self.active_character = Some(new_character);
 	}
 

@@ -2,9 +2,9 @@
 
 fn image_to_texture(image: Vec<u8>, max_size: [u32; 2]) -> egui::ColorImage {
 	let result = image::io::Reader::new(std::io::Cursor::new(image))
-		.with_guessed_format()
-		.expect("Error loading iamge")
-		.decode();
+	.with_guessed_format()
+	.expect("Error loading iamge")
+	.decode();
 
 	let Ok(mut image) = result else {
 		return egui::ColorImage::new([30, 30], egui::Color32::RED);
@@ -12,7 +12,7 @@ fn image_to_texture(image: Vec<u8>, max_size: [u32; 2]) -> egui::ColorImage {
 	image = image.resize(
 		max_size[0],
 		max_size[1],
-		image::imageops::Lanczos3);
+		image::imageops::Triangle);
 
 	let size = [image.width() as _, image.height() as _];
 	let image_buffer = image.to_rgba8();

@@ -331,14 +331,15 @@ impl Character {
 
 	fn show_items(&self, ui: &mut egui::Ui) {
 		ui.horizontal(|ui| {
-			ui.vertical_centered(|ui| {
-				ui.label(egui::RichText::new("Attributes").size(24.0));
-			});
+			ui.add_space(60.0);
 			ui.with_layout(
 				egui::Layout::right_to_left(egui::Align::Center),
 				|ui| {
 					ui.add_space(10.0);
-					ui.button("Change");
+					ui.add_sized(egui::vec2(50.0, 0.0), egui::Button::new("Update"));
+					ui.vertical_centered(|ui| {
+						ui.label(egui::RichText::new("Items").size(24.0));
+					});
 			});
 		});
 		ui.separator();

@@ -2,30 +2,34 @@
 use super::*;
 
 fn character_preview(ctx: &egui::Context, ui: &mut egui::Ui, width: f32, character: &mut character::Character) -> egui::Response {
-	ui.add_space(20.0);
-	let (rect, response) = ui.allocate_at_least(
-		egui::vec2(width, 100.0),
-		egui::Sense::click());
-	let visuals = ui.style().interact(&response);
-	ui.painter().rect(
-		rect,
-		visuals.rounding,
-		visuals.weak_bg_fill,
-		visuals.bg_stroke);
-
-	ui.allocate_ui_at_rect(rect.shrink2(egui::vec2(10.0, 5.0)), |ui| {
-		ui.horizontal(|ui|{
-			ui.set_min_height(rect.shrink2(egui::vec2(10.0, 5.0)).height());
-			ui.horizontal_centered(|ui| {
-				character.get_picture_static(ctx, ui);
-			});
-			ui.vertical(|ui| {
-				ui.label(egui::RichText::new(character.character_info.name.clone()).size(24.0));
-				ui.label(character.archetype.to_string());				
+	let mut option_response: Option<egui::Response> = None;
+	ui.vertical(|ui| {
+		ui.add_space(20.0);
+		let (rect, response) = ui.allocate_at_least(
+			egui::vec2(width, 100.0),
+			egui::Sense::click());
+		let visuals = ui.style().interact(&response);
+		ui.painter().rect(
+			rect,
+			visuals.rounding,
+			visuals.weak_bg_fill,
+			visuals.bg_stroke);
+	
+		ui.allocate_ui_at_rect(rect.shrink2(egui::vec2(10.0, 5.0)), |ui| {
+			ui.horizontal(|ui|{
+				ui.set_min_height(rect.shrink2(egui::vec2(10.0, 5.0)).height());
+				ui.horizontal_centered(|ui| {
+					character.get_picture_static(ctx, ui);
+				});
+				ui.vertical(|ui| {
+					ui.label(egui::RichText::new(character.character_info.name.clone()).size(24.0));
+					ui.label(character.archetype.to_string());				
+				});
 			});
 		});
+		option_response = Some(response);
 	});
-	return response;
+	return option_response.unwrap();
 }
 
 pub fn show_all_characters(parent: &mut App, ctx: &egui::Context) {
@@ -35,10 +39,7 @@ pub fn show_all_characters(parent: &mut App, ctx: &egui::Context) {
 		let width = (ui.available_width() - 100.0).clamp(200.0, 1500.0);
 		let spacing = (ui.available_width() - width) / 2.0;
 
-		ui.horizontal(|ui| {
-			ui.add_space(spacing);
-
-			ui.vertical(|ui| {
+		ui.vertical(|ui| {
 
 				let mut num_characters: usize = 0;
 				let mut active_name: Option<String> = None;
@@ -54,31 +55,32 @@ pub fn show_all_characters(parent: &mut App, ctx: &egui::Context) {
 						ui.label(egui::RichText::new("Active").size(24.0));
 					});				
 
-					if character_preview(ctx, ui, width, character).clicked() {
-						parent.current_page = Page::CharacterSheet(Default::default());
-					}
+					ui.horizontal(|ui| {
+						ui.add_space(spacing);
+						if character_preview(ctx, ui, width, character).clicked() {
+							parent.current_page = Page::CharacterSheet(Default::default());
+						}	
+					});
 
-					ui.add_space(20.0);
-					let (rect, _) = ui.allocate_at_least(egui::vec2(width, 6.0), egui::Sense::hover());
-					let painter = ui.painter();
-					painter.hline(
-						rect.left()..=rect.right(),
-						painter.round_to_pixel(rect.center().y),
-						ui.visuals().widgets.noninteractive.bg_stroke);
+					ui.add_space(10.0);
+					ui.add(egui::Separator::default().shrink(spacing));
 				}
 
 				// Inactive characters
 				for character in parent.current_user.get_all_characters() {
-					if let Some(name) = &active_name {
+					if let Some(name) = &active_name { // Ignore active character (should exist)
 						if &character.character_info.name == name {
 							continue;
 						}
 					}
 					num_characters += 1;
 
-					if character_preview(ctx, ui, width, character).clicked() {
-						new_active = Some(character.clone());
-					}
+					ui.horizontal(|ui| {
+						ui.add_space(spacing);
+						if character_preview(ctx, ui, width, character).clicked() {
+							new_active = Some(character.clone());
+						}	
+					});
 				}
 
 				if let Some(character) = new_active {
@@ -108,13 +110,12 @@ pub fn show_all_characters(parent: &mut App, ctx: &egui::Context) {
 						}
 						_ => {
 							ui.label("Maximum number of characters reached");
-							ui.label("Please delete one to make a new character");
+							ui.label("To make a new character, please delete an existing character first");
 						}
 					}
 				});
 
 				// ui.add_space(ui.available_height().max(20.0));
-			});
 		});
 		});
 	});
