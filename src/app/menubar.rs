@@ -2,10 +2,8 @@ use super::icon;
 use super::defines;
 
 use super::pages;
-use super::popups;
 
 use super::spells;
-use super::character;
 
 pub fn upper(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::Frame) -> egui::InnerResponse<()> {
 	#[allow(non_snake_case)]
@@ -133,14 +131,15 @@ pub fn upper(parent: &mut super::App, ctx: &egui::Context, frame: &mut eframe::F
 				}
 			});
 
-			if ui.button("Character Sheet").clicked() {
-				if parent.current_popup.is_none() {
-					if parent.current_user.get_character().is_none() {
-						parent.current_popup = popups::Popup::CreateCharacter(popups::CharacterDetails::new())
-					} 
-					parent.current_page = pages::Page::CharacterSheet(character::CharacterSheetDetails::new())
+			if ui.button("Characters").clicked() {
+				parent.current_page = pages::Page::AllCharacters;
+				// if parent.current_popup.is_none() {
+				// 	if parent.current_user.get_character().is_none() {
+				// 		parent.current_popup = popups::Popup::CreateCharacter(Default::default())
+				// 	} 
+				// 	parent.current_page = pages::Page::CharacterSheet(Default::default())
 	
-				}
+				// }
 			}
 
 		});

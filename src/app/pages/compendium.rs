@@ -1,34 +1,6 @@
-use super::icon;
-use super::defines;
+use super::*;
 
-use super::spells;
-use super::character;
-
-use super::popups;
-
-#[derive(Clone)]
-#[derive(serde::Serialize, serde::Deserialize)]
-pub enum Page {
-	Home,
-	#[serde(skip)]
-	Compendium(spells::SpellType),
-	CharacterSheet(character::CharacterSheetDetails)
-}
-pub fn show_home(parent: &mut super::App, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-	egui::CentralPanel::default().show(ctx, |ui| {
-		ui.label("This is the main page");
-
-		let booklet = icon::Icon::from_svg_constant(
-			defines::BOOKLET.to_vec(), ctx)
-			.get(ctx);
-		if ui.add(
-			egui::Button::image_and_text(booklet.0, booklet.1, "Compendium")	
-		).clicked() {
-			parent.current_page = Page::Compendium(spells::SpellType::None)
-		};
-	});
-}
-pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+pub fn show_spells(parent: &mut App, ctx: &egui::Context, _frame: &mut eframe::Frame) {
 	let Page::Compendium(selected_type) = parent.current_page.clone() else {
 		return
 	};
@@ -268,57 +240,5 @@ pub fn show_spells(parent: &mut super::App, ctx: &egui::Context, _frame: &mut ef
 		}
 	
 	});
-	});
-}
-
-pub fn show_character(parent: &mut super::App, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-	let Page::CharacterSheet(details) = &mut parent.current_page else {
-		return
-	};	
-
-	egui::CentralPanel::default().show(ctx, |ui| {
-		egui::ScrollArea::vertical()
-			.auto_shrink([false, false])
-			.drag_to_scroll(true)
-			.show(ui, |ui| {
-
-
-			if let Some(character) = parent.current_user.get_character() {
-
-			let width = (ui.available_width() - 100.0).clamp(200.0, 1500.0);
-			let spacing = (ui.available_width() - width) / 2.0;
-
-			ui.horizontal(|ui| {
-				ui.add_space(spacing);
-				character.show(&mut parent.loader, details, ui, ctx, width);
-			});
-
-			ui.add_space(20.0);
-
-			ui.vertical_centered(|ui| {
-				if ui.add(
-					egui::Button::new("Delete Character")
-						.frame(true)
-						.fill(egui::Color32::DARK_RED)
-				).on_hover_text("There is no confirmation screen")
-				.clicked() {
-					parent.current_user.remove_character();
-				};
-			});
-
-			ui.add_space(40.0);
-
-			} else {
-
-				ui.label("No character available");
-				if ui.button("Create character").clicked() {
-					if parent.current_popup.is_none() {
-						parent.current_popup = popups::Popup::CreateCharacter(popups::CharacterDetails::new());
-					}
-
-				};
-			};
-		});
-
 	});
 }
