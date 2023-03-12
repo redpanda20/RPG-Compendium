@@ -14,7 +14,8 @@ pub struct User {
 	profile_image: image::OptionalImage,	
 	image_storage: Option<Vec<u8>>,
 
-	character: Option<character::Character>,
+	characters: Vec<character::Character>,
+	active_character: Option<character::Character>,
 }
 
 impl Default for User {
@@ -26,7 +27,8 @@ impl Default for User {
 			password: Default::default(),
 			profile_image: Default::default(),
 			image_storage: None,
-			character: None
+            characters: Vec::new(),
+            active_character: None,
 		}
     }
 }
@@ -40,7 +42,8 @@ impl User {
 			is_logged_in: true,
 			profile_image: Default::default(),
 			image_storage: None,
-			character: None
+            characters: Vec::new(),
+            active_character: None,
 		}
 	}
 
@@ -83,19 +86,42 @@ impl User {
 	}
 	pub fn update_profile_picture(&mut self, ctx: &egui::Context, raw_file: Vec<u8>) {
 		if self.is_logged_in {
-			self.profile_image.load_image_from_raw(ctx, raw_file.clone());
+			self.profile_image.update(ctx, raw_file.clone());
 			self.image_storage = Some(raw_file.clone());
 		}
 	}
-	pub fn get_character(&mut self) -> &mut Option<character::Character> {
-		return &mut self.character
+
+	pub fn get_all_characters(&mut self) -> &mut Vec<character::Character> {
+		return &mut self.characters;
 	}
 
-	pub fn set_character(&mut self, name: String, racial_archetype: character::RacialArchetype) {
-		self.character = Some(character::Character::new(name, racial_archetype));
+	pub fn get_active_character(&mut self) -> &mut Option<character::Character> {
+		return &mut self.active_character
 	}
 
-	pub fn remove_character(&mut self) {
-		self.character = None
+	pub fn remove_active_character(&mut self) {
+		if let Some(character) = &self.active_character {
+			self.characters.retain(|char| char.character_info.name != character.character_info.name);
+		}
+		self.active_character = None;
 	}
+
+	pub fn set_active_character(&mut self, new_character: character::Character) {
+		if let Some(character) = &self.active_character {
+			match self.characters
+				.iter()
+				.position(|ref char| char.character_info.name == character.character_info.name)
+			{
+				Some(index) => self.characters[index] = character.clone(),
+				None => self.characters.push(character.clone()),
+			}
+		}
+		self.active_character = Some(new_character);
+	}
+
+	pub fn add_character(&mut self, name: String, racial_archetype: character::RacialArchetype) {
+		let new_character = character::Character::new(name, racial_archetype);
+		self.set_active_character(new_character);
+	}
+
 }

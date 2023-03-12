@@ -69,34 +69,7 @@ impl eframe::App for App {
 		let mut should_save = false;
 
 		// Check reciever
-		for reciever in &self.loader.receiver {
-			let Ok((file_usage, file_raw)) = reciever.try_recv() else {
-				break;
-			};
-			match file_usage {
-				loader::FileUsage::ProfilePicture => {
-					if self.current_user.is_mutable() && self.current_user.is_logged_in() {
-						self.current_user.update_profile_picture(ctx, file_raw.to_vec());
-						should_save = true;
-					}
-					reciever.close();
-				},
-				loader::FileUsage::CharacterPicture => {
-					if let Some(character) = self.current_user.get_character() {
-						character.update_picture(ctx, file_raw);
-						should_save = true;
-					}
-					reciever.close();
-				},
-				loader::FileUsage::Error => (),
-			}
-		}
-		self.loader.receiver.retain(|recv| match recv.try_recv() {
-			Ok(_) => true,
-			Err(e) => match e {
-				async_std::channel::TryRecvError::Empty => true,
-				async_std::channel::TryRecvError::Closed => false,
-		}});
+		self.loader.update(ctx, &mut self.current_user);
 
 		// Handle shortcut inputs
 		ctx.input_mut(|i| {
@@ -121,6 +94,10 @@ impl eframe::App for App {
 				menubar::upper(self, ctx, frame);
 				pages::show_spells(self, ctx, frame);
 			},
+			pages::Page::AllCharacters => {
+				menubar::upper(self, ctx, frame);
+				pages::show_all_characters(self, ctx);
+			}
 			pages::Page::CharacterSheet(_) => {
 				menubar::upper(self, ctx, frame);
 				pages::show_character(self, ctx, frame);

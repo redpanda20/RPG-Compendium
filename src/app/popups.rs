@@ -5,7 +5,7 @@ pub enum Popup {
 	LogIn(UserDetails),
 	CreateAccount(UserDetails),
 	ViewAccount,
-	CreateCharacter(CharacterDetails)
+	CreateCharacter(CreateCharacterDetails)
 }
 impl Default for Popup {
     fn default() -> Self {
@@ -206,15 +206,15 @@ pub fn show_account(parent: &mut super::App, ctx: &egui::Context) {
 	}
 }
 
-pub struct CharacterDetails{
+pub struct CreateCharacterDetails{
 	pub name: String,
 	pub archetype: character::RacialArchetype,
 }
-impl CharacterDetails {
-	pub fn new() -> Self {
+impl Default for CreateCharacterDetails {
+	fn default() -> Self {
 		Self {
 			name: String::from(""),
-			archetype: character::RacialArchetype::Undecided,
+			archetype: character::RacialArchetype::Undecided
 		}
 	}
 }
@@ -284,12 +284,13 @@ pub fn show_create_character(parent: &mut super::App, ctx: &egui::Context) -> (b
 		}
 
 		let traits = character::traits::from_archetype(&details.archetype);
-
+		ui.shrink_width_to_current();
+		
 		ui.columns(2, |column| {
+			column[0].vertical_centered(|ui| {
+				ui.label(egui::RichText::new("Attributes").size(24.0));
+			});
 			column[0].vertical(|ui| {
-				ui.vertical_centered(|ui| {
-					ui.label(egui::RichText::new("Attributes").size(24.0));
-				});
 				ui.separator();
 		
 				if let Some((_, quantity)) = attributes.iter().find(|(att, _)| att == &character::Attribute::Unused) {
@@ -302,10 +303,10 @@ pub fn show_create_character(parent: &mut super::App, ctx: &egui::Context) -> (b
 					ui.label( egui::RichText::new(format!("{}: {}", attribute.to_string(), quantity)).size(16.0) );
 				}
 			});
+			column[1].vertical_centered(|ui| {
+				ui.label(egui::RichText::new("Traits").size(24.0));
+			});
 			column[1].vertical(|ui| {
-				ui.vertical_centered(|ui| {
-					ui.label(egui::RichText::new("Traits").size(24.0));
-				});
 				ui.separator();
 	
 				for char_trait in &traits {
@@ -316,8 +317,11 @@ pub fn show_create_character(parent: &mut super::App, ctx: &egui::Context) -> (b
 			});
 		});
 
+		ui.vertical_centered(|ui| {
+			button = ui.button("Create Character").clicked();
+		});
 
-		button = ui.button("Create Character").clicked();
+
 	});
 
 	let mut created_character = false;
@@ -353,7 +357,8 @@ pub fn show_create_character(parent: &mut super::App, ctx: &egui::Context) -> (b
 				_ => true
 			}
 		} && !details.name.is_empty() {
-			parent.current_user.set_character(details.name.clone(), details.archetype.clone());
+			parent.current_user.add_character(details.name.clone(), details.archetype.clone());
+			parent.current_page = super::pages::Page::CharacterSheet(Default::default());
 			created_character = true;
 		}
 	}

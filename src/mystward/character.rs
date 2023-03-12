@@ -40,9 +40,9 @@ pub struct CharacterSheetDetails {
 	biography: Option<String>,
 	appearance: Option<String>
 }
-impl CharacterSheetDetails {
-	pub fn new() -> CharacterSheetDetails {
-		CharacterSheetDetails { name: None, biography: None, appearance: None }
+impl Default for CharacterSheetDetails {
+	fn default() -> Self {
+		Self { name: None, biography: None, appearance: None }
 	}
 }
 
@@ -346,11 +346,11 @@ impl Character {
 	}
 
 	pub fn update_picture(&mut self, ctx: &egui::Context, file_raw: Vec<u8>) {
-		self.character_info.profile_image.load_image_from_raw(ctx, file_raw.clone());
+		self.character_info.profile_image.update(ctx, file_raw.clone());
 		self.character_info.image_storage = Some(file_raw.clone());
 	}
 
-	fn get_picture(&mut self, loader: &mut loader::Loader, ctx: &egui::Context, ui: &mut egui::Ui) {
+	pub fn get_picture(&mut self, loader: &mut loader::Loader, ctx: &egui::Context, ui: &mut egui::Ui) {
 		let (id, size) = &self.character_info.profile_image.get(ctx);
 
 		if ui.add(
@@ -358,5 +358,11 @@ impl Character {
 		).clicked() {
 			loader.file_dialog(loader::FileUsage::CharacterPicture)
 		};
+	}
+
+	pub fn get_picture_static(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+		let (id, size) = &self.character_info.profile_image.get_thumbnail(ctx);
+
+		ui.image(*id, *size);
 	}
 }
