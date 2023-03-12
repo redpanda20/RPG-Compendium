@@ -5,6 +5,10 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.release]
+opt-level = 'z'
+strip = true
+
 [dependencies]
 eframe = { version = "0.21.2", features = ["persistence"] }
 egui = "0.21.0"
