@@ -249,65 +249,67 @@ impl Character {
 			});	
 			ui.separator();
 
-			let mut unused_quantity: Option<u8> = None;
+			let mut unused_quantity: u8 = 0;
 			if let Some((_, quantity)) = &self.attributes.iter().find(|(att, _)| att == &Attribute::Unused) {
-				unused_quantity = Some(*quantity);
+				unused_quantity = *quantity;
 			}
 
-			egui::Grid::new("Attribute grid")
-			.show(ui, |ui| {
+			ui.columns(2, |column| {
 				for (attribute, quantity) in &mut temp_attributes {
-					if attribute == &Attribute::Unused { continue; }
-					if ui.add_enabled(
-						*quantity > 0,
-						egui::Button::new("-")
-					).clicked() {
-						*quantity -= 1;
-						if let Some(unused) = &mut unused_quantity {
-							*unused += 1;
-						} else { unused_quantity = Some(1) }
-					};
-					if unused_quantity.is_some() && unused_quantity.unwrap() > 0 {
-						if ui.add_enabled(
-							*quantity < 5,
-							egui::Button::new("+")
-						).clicked() {
-							if let Some(unused) = &mut unused_quantity {
-								if *unused > 0 {
-									*quantity += 1;
-									*unused -= 1;	
-								}
-							}
-						};	
-					} else {
-						ui.label("");	// Dummy space so grid doesn't move
-					} 
-					ui.label( egui::RichText::new(attribute.to_string()).size(16.0) );
-					let mut count = String::new();
-					for _ in 0..*quantity {
-						count += "|";
+					if attribute == &Attribute::Unused {
+						continue;
 					}
-					ui.label(count);
-					ui.end_row();
+					column[0].label( egui::RichText::new(attribute.to_string()).size(16.0) );
+					column[1].horizontal(|ui| {
+						for num in 1..=*quantity {
+							let (rect, response) = ui.allocate_at_least(egui::vec2(16.0, 16.0), egui::Sense::click());
+							let style = ui.style().visuals.widgets.hovered;
+							ui.painter().rect(
+								rect,
+								style.rounding,
+								match response.hovered() && num == *quantity {
+									false => style.bg_fill,
+									true => egui::Color32::RED,
+								},
+								style.bg_stroke);
+								if response.hovered() && response.clicked() && num == *quantity {
+									*quantity -= 1;
+									unused_quantity += 1;
+								}
+						}
+						if unused_quantity > 0 && *quantity < 5 {
+							let (rect, response) = ui.allocate_at_least(egui::vec2(16.0, 16.0), egui::Sense::click());
+							let style = ui.style().interact(&response);
+							ui.painter().rect(
+								rect,
+								style.rounding,
+								style.bg_fill,
+								style.bg_stroke);
+							if response.clicked() {
+								*quantity += 1;
+								unused_quantity -= 1;
+							}
+						}
+						// Keep values inline if nothing would be rendered
+						if *quantity == 0 {
+							let (_, _) = ui.allocate_at_least(egui::vec2(16.0, 16.0), egui::Sense::hover());
+						}
+					});
 				};
 			});
 
-			if let Some(quantity) = unused_quantity {
-				if quantity > 0 {
-					ui.add_space(10.0);
-					ui.label(
-						egui::RichText::new(format!("{}: {}", Attribute::Unused.to_string(), unused_quantity.unwrap()))
-						.size(16.0)
-						.color(ui.style().visuals.warn_fg_color));
-				}
+			if unused_quantity > 0 {
+				ui.add_space(10.0);
+				ui.label(
+					egui::RichText::new(format!("{}: {}", Attribute::Unused.to_string(), unused_quantity))
+					.size(16.0)
+					.color(ui.style().visuals.warn_fg_color));
 			}
 
-			if let Some(new_quantity) = unused_quantity {
-				for (att, quantity) in &mut temp_attributes {
-					if att == &Attribute::Unused {
-						*quantity = new_quantity;
-						break;
-					}
+			for (att, quantity) in &mut temp_attributes {
+				if att == &Attribute::Unused {
+					*quantity = unused_quantity;
+					break;
 				}
 			}
 		});
