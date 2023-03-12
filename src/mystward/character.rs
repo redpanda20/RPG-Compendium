@@ -254,6 +254,7 @@ impl Character {
 				unused_quantity = *quantity;
 			}
 
+			ui.style_mut().spacing.item_spacing.y = 8.0;
 			ui.columns(2, |column| {
 				for (attribute, quantity) in &mut temp_attributes {
 					if attribute == &Attribute::Unused {
@@ -262,7 +263,7 @@ impl Character {
 					column[0].label( egui::RichText::new(attribute.to_string()).size(16.0) );
 					column[1].horizontal(|ui| {
 						for num in 1..=*quantity {
-							let (rect, response) = ui.allocate_at_least(egui::vec2(16.0, 16.0), egui::Sense::click());
+							let (rect, response) = ui.allocate_at_least(egui::vec2(24.0, 16.0), egui::Sense::click());
 							let style = ui.style().visuals.widgets.hovered;
 							ui.painter().rect(
 								rect,
@@ -278,7 +279,7 @@ impl Character {
 								}
 						}
 						if unused_quantity > 0 && *quantity < 5 {
-							let (rect, response) = ui.allocate_at_least(egui::vec2(16.0, 16.0), egui::Sense::click());
+							let (rect, response) = ui.allocate_at_least(egui::vec2(24.0, 16.0), egui::Sense::click());
 							let style = ui.style().interact(&response);
 							ui.painter().rect(
 								rect,
@@ -292,7 +293,7 @@ impl Character {
 						}
 						// Keep values inline if nothing would be rendered
 						if *quantity == 0 {
-							let (_, _) = ui.allocate_at_least(egui::vec2(16.0, 16.0), egui::Sense::hover());
+							let (_, _) = ui.allocate_at_least(egui::vec2(24.0, 16.0), egui::Sense::hover());
 						}
 					});
 				};
