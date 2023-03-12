@@ -28,14 +28,9 @@ impl Default for Item {
     }
 }
 impl Item {
-	pub fn show(&self, ui: &mut egui::Ui) {
+	pub fn show(&self, ui: &mut egui::Ui) {		
 		ui.vertical(|ui| {
 			ui.heading(&self.name);
-			ui.label(match self.weight {
-				Weight::Small => "Weight: Small",
-				Weight::Normal => "Weight: Normal",
-				Weight::Heavy => "Weight: Heavy",
-			});
 			for (attribute, quantity) in &self.attribute_bonus {
 				ui.label(format!("{}: +{}", attribute.to_string(), quantity));
 			}
@@ -52,24 +47,71 @@ impl Item {
 #[derive(Clone)]
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct ItemList {
-	pub items: Vec<Item>
+	pub item_list: Vec<Item>
 }
 impl ItemList {
 	pub fn show(&self, ui: &mut egui::Ui) {
+		let small_items: Vec<Item> = self.item_list
+			.clone()
+			.into_iter()
+			.filter(|item| match item.weight {
+				Weight::Small => true,
+				_ => false,
+			})
+			.collect();
+		let normal_items: Vec<Item> = self.item_list
+			.clone()
+			.into_iter()
+			.filter(|item| match item.weight {
+				Weight::Normal => true,
+				_ => false,
+			})
+			.collect();
+		let heavy_items: Vec<Item> = self.item_list
+			.clone()
+			.into_iter()
+			.filter(|item| match item.weight {
+				Weight::Heavy => true,
+				_ => false,
+			})
+			.collect();
+
 		ui.centered_and_justified(|ui| {
-			ui.label(egui::RichText::new("Items").size(24.0));
+			ui.label(egui::RichText::new("Small Items").size(16.0));
+		});
+		ui.vertical(|ui| {
+			for item in small_items {
+				ui.horizontal(|ui| {
+					ui.label("-");
+					item.show(ui);
+				});
+				ui.add_space(5.0);
+			}
 		});
 		ui.separator();
 		ui.vertical(|ui| {
-			for item in &self.items {
+			for item in normal_items {
 				item.show(ui);
 				ui.add_space(10.0);
 			}
 		});
+		ui.vertical(|ui| {
+			for item in heavy_items {
+				ui.horizontal(|ui| {
+					item.show(ui);
+					ui.with_layout(
+						egui::Layout::right_to_left(egui::Align::Min), 
+						|ui| { ui.label("Heavy") }
+					);
+				});
+				ui.add_space(10.0);
+			}
+		});
+
 	}
 }
 pub fn load_requisition_items() -> ItemList {
-	ItemList { items: vec![
+	ItemList { item_list: vec![
 
 		Item {
 			name: String::from("Knife"),

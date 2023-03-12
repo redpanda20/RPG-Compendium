@@ -90,12 +90,12 @@ impl Character {
 				if width < 800.0 {
 					self.show_attributes(ui);
 					self.show_traits(ui);
-					self.items.show(ui);
+					self.show_items(ui);
 				} else {
 					ui.columns(3, |column| {
 						self.show_attributes(&mut column[0]);
 						self.show_traits(&mut column[1]);
-						self.items.show(&mut column[2]);
+						self.show_items(&mut column[2]);
 					});
 				}
 			});			
@@ -241,23 +241,77 @@ impl Character {
 		});
 	}
 
-	fn show_attributes(&self, ui: &mut egui::Ui) {
+	fn show_attributes(&mut self, ui: &mut egui::Ui) {
+		let mut temp_attributes = self.attributes.clone();
 		ui.vertical(|ui| {
 			ui.vertical_centered(|ui| {
 				ui.label(egui::RichText::new("Attributes").size(24.0));
-			});
+			});	
 			ui.separator();
 
+			let mut unused_quantity: Option<u8> = None;
 			if let Some((_, quantity)) = &self.attributes.iter().find(|(att, _)| att == &Attribute::Unused) {
-				ui.label( egui::RichText::new(format!("{}: {}", Attribute::Unused.to_string(), quantity)).size(16.0) );
-				ui.add_space(10.0);
+				unused_quantity = Some(*quantity);
 			}
 
-			for (attribute, quantity) in &self.attributes {
-				if attribute == &Attribute::Unused {continue;}
-				ui.label( egui::RichText::new(format!("{}: {}", attribute.to_string(), quantity)).size(16.0) );
+			egui::Grid::new("Attribute grid")
+			.show(ui, |ui| {
+				for (attribute, quantity) in &mut temp_attributes {
+					if attribute == &Attribute::Unused { continue; }
+					if ui.add_enabled(
+						*quantity > 0,
+						egui::Button::new("-")
+					).clicked() {
+						*quantity -= 1;
+						if let Some(unused) = &mut unused_quantity {
+							*unused += 1;
+						} else { unused_quantity = Some(1) }
+					};
+					if unused_quantity.is_some() && unused_quantity.unwrap() > 0 {
+						if ui.add_enabled(
+							*quantity < 5,
+							egui::Button::new("+")
+						).clicked() {
+							if let Some(unused) = &mut unused_quantity {
+								if *unused > 0 {
+									*quantity += 1;
+									*unused -= 1;	
+								}
+							}
+						};	
+					} else {
+						ui.label("");	// Dummy space so grid doesn't move
+					} 
+					ui.label( egui::RichText::new(attribute.to_string()).size(16.0) );
+					let mut count = String::new();
+					for _ in 0..*quantity {
+						count += "|";
+					}
+					ui.label(count);
+					ui.end_row();
+				};
+			});
+
+			if let Some(quantity) = unused_quantity {
+				if quantity > 0 {
+					ui.add_space(10.0);
+					ui.label(
+						egui::RichText::new(format!("{}: {}", Attribute::Unused.to_string(), unused_quantity.unwrap()))
+						.size(16.0)
+						.color(ui.style().visuals.warn_fg_color));
+				}
+			}
+
+			if let Some(new_quantity) = unused_quantity {
+				for (att, quantity) in &mut temp_attributes {
+					if att == &Attribute::Unused {
+						*quantity = new_quantity;
+						break;
+					}
+				}
 			}
 		});
+		self.attributes = temp_attributes;
 	}
 
 	fn show_traits(&self, ui: &mut egui::Ui) {
@@ -273,6 +327,22 @@ impl Character {
 				ui.add_space(4.0);
 			}
 		});
+	}
+
+	fn show_items(&self, ui: &mut egui::Ui) {
+		ui.horizontal(|ui| {
+			ui.vertical_centered(|ui| {
+				ui.label(egui::RichText::new("Attributes").size(24.0));
+			});
+			ui.with_layout(
+				egui::Layout::right_to_left(egui::Align::Center),
+				|ui| {
+					ui.add_space(10.0);
+					ui.button("Change");
+			});
+		});
+		ui.separator();
+		self.items.show(ui);
 	}
 
 	pub fn update_picture(&mut self, ctx: &egui::Context, file_raw: Vec<u8>) {
