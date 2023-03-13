@@ -164,6 +164,17 @@ impl ItemList {
 			})
 	}
 
+	pub fn item_weight_custom(&self, weights: [usize; 3]) -> usize {
+		self.item_list
+			.clone()
+			.into_iter()
+			.fold(usize::MIN, |acc, item| match item.weight {
+				Weight::Small => acc + weights[0],
+				Weight::Normal => acc + weights[1],
+				Weight::Heavy => acc + weights[2],
+			})
+	}
+
 	pub fn show_items(&mut self, ui: &mut egui::Ui, weight: Weight) {
 		for item in &mut self.item_list {
 			if item.weight != weight {
@@ -263,7 +274,7 @@ pub fn normal_requisition_items() -> ItemList {
 		,
 		Item {
 			name: String::from("Pack/Satchel"),
-			effect: Some(String::from("Storage for 6 Small Items\nSlow to acess")),
+			effect: Some(String::from("Storage for 6 Small Items\nSlow to access")),
 			..Default::default() }
 		,
 		Item {

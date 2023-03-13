@@ -280,6 +280,19 @@ impl Character {
 				response.clicked()
 			}
 
+			let item_weight = match self.archetype {
+				RacialArchetype::Byvine(ByvineClass::Goliath) => match self.items.item_weight_custom([0, 1, 1]) {
+					0 => 0,
+					num => num - 1,
+				},
+				RacialArchetype::Wyvren(_) => self.items.item_weight(),
+				_ => match self.items.item_weight() {
+					0 => 0,
+					num => num - 1,
+				},
+			} as u8;
+	
+
 			ui.style_mut().spacing.item_spacing.y = 8.0;
 			ui.columns(2, |column| {
 				for (attribute, quantity) in &mut temp_attributes {
@@ -290,15 +303,15 @@ impl Character {
 					column[1].horizontal(|ui| {
 						match attribute {
 							Attribute::Athletics => {
-								for _ in 0..self.items.item_weight() as u8 {
+								for _ in 0..item_weight as u8 {
 									draw_box(ui, Some(egui::Color32::DARK_RED), false, None);
 								}
-								if *quantity > self.items.item_weight() as u8 + 1 {
+								if *quantity > item_weight as u8 + 1 {
 									for _ in 0..*quantity - 1 - self.items.item_weight() as u8 {
 										draw_box(ui, None, false, None);
 									}
 								}
-								if *quantity > self.items.item_weight() as u8 {
+								if *quantity > item_weight as u8 {
 									if draw_box(ui, None, false, Some(egui::Color32::RED)) {
 										*quantity -= 1;
 										unused_quantity += 1;				
@@ -404,22 +417,39 @@ impl Character {
 		});
 		
 		// Items with weight
-		let mut max_weight: usize = 1;
+		let mut max_weight = 0;
 		if let Some((_, quantity)) = &self.attributes.iter().find(|(att, _)| att == &Attribute::Athletics) {
 			max_weight += *quantity as usize;
 		}
+
+		let item_weight = match self.archetype {
+			RacialArchetype::Byvine(ByvineClass::Goliath) => match self.items.item_weight_custom([0, 1, 1]) {
+				0 => 0,
+				num => num - 1,
+			},
+			RacialArchetype::Wyvren(_) => self.items.item_weight(),
+			_ => match self.items.item_weight() {
+				0 => 0,
+				num => num - 1,
+			},
+		};
+
 
 		ui.horizontal(|ui| {
 			ui.add_space(30.0);
 			ui.with_layout(
 				egui::Layout::right_to_left(egui::Align::Max),
 				|ui| {
-					if self.items.item_weight() + 1 < max_weight && details.item_selection.is_none() {
-						if ui.add_sized(egui::vec2(30.0, 20.0), egui::Button::new("Add")).clicked() {
-							let mut valid_items = items::normal_requisition_items();
-							if self.items.item_weight() + 2 < max_weight {
-								valid_items.add_item_list(items::heavy_requisition_items());
-							}
+					if details.item_selection.is_none() && item_weight + 1 <= max_weight {
+						let mut valid_items = items::normal_requisition_items();
+						if match self.archetype {
+							RacialArchetype::Byvine(ByvineClass::Goliath) => true,
+							RacialArchetype::Wyvren(_) => false,
+							_ => item_weight + 2 <= max_weight,
+						} {
+							valid_items.add_item_list(items::heavy_requisition_items());
+						}
+						if ui.button("Add").clicked() {
 							details.item_selection = Some(valid_items);
 						}
 					} else {
