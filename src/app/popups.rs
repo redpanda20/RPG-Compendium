@@ -368,5 +368,4 @@ pub fn show_create_character(parent: &mut super::App, ctx: &egui::Context) -> (b
 	}
 
 	return (created_character, response)
-
 }

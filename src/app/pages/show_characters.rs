@@ -8,7 +8,7 @@ fn character_preview(ctx: &egui::Context, ui: &mut egui::Ui, width: f32, charact
 		let (rect, response) = ui.allocate_at_least(
 			egui::vec2(width, 100.0),
 			egui::Sense::click());
-		let visuals = ui.style().interact(&response);
+		let visuals = ui.style().as_ref().interact(&response);
 		ui.painter().rect(
 			rect,
 			visuals.rounding,

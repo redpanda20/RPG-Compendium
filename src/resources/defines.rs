@@ -42,3 +42,6 @@ br##"<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" h
 
 pub const SELECT_IMAGE: &[u8] = include_bytes!("../../assets/image_select.png");
 pub const SELECT_IMAGE_LIGHT: &[u8] = include_bytes!("../../assets/image_select_light.png");
+
+pub const CLOSE: &[u8] = include_bytes!("../../assets/close.png");
+pub const CLOSE_LIGHT: &[u8] = include_bytes!("../../assets/close_light.png");

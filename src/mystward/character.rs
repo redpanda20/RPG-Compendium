@@ -38,11 +38,12 @@ pub struct CharacterInfo {
 pub struct CharacterSheetDetails {
 	name: Option<String>,
 	biography: Option<String>,
-	appearance: Option<String>
+	appearance: Option<String>,
+	item_selection: Option<items::ItemList>
 }
 impl Default for CharacterSheetDetails {
 	fn default() -> Self {
-		Self { name: None, biography: None, appearance: None }
+		Self { name: None, biography: None, appearance: None, item_selection: None }
 	}
 }
 
@@ -71,7 +72,7 @@ impl Character {
 			archetype,
 			attributes,
 			traits,
-			items: items::load_requisition_items(),
+			items: items::all_requisition_items(),
 			notes: String::new() }
 	}
 
@@ -90,12 +91,12 @@ impl Character {
 				if width < 800.0 {
 					self.show_attributes(ui);
 					self.show_traits(ui);
-					self.show_items(ui);
+					self.show_items(ui, details);
 				} else {
 					ui.columns(3, |column| {
 						self.show_attributes(&mut column[0]);
 						self.show_traits(&mut column[1]);
-						self.show_items(&mut column[2]);
+						self.show_items(&mut column[2], details);
 					});
 				}
 			});			
@@ -254,6 +255,31 @@ impl Character {
 				unused_quantity = *quantity;
 			}
 
+			fn draw_box(ui: &mut egui::Ui, alt_fill: Option<egui::Color32>, react: bool, react_fill: Option<egui::Color32>) -> bool {
+				let (rect, response) = ui.allocate_at_least(egui::vec2(24.0, 16.0), egui::Sense::click());
+				let style = match react {
+					true => ui.style().as_ref().interact(&response).to_owned(),
+					false => {
+						let mut new_style = ui.style().visuals.widgets.hovered;
+						if let Some(fill) = react_fill {
+							if response.hovered() {
+								new_style.bg_fill = fill;
+							}
+						}
+						new_style
+					},
+				};
+				ui.painter().rect(
+					rect,
+					style.rounding,
+					match alt_fill {
+						Some(fill) => fill,
+						None => style.bg_fill,
+					},
+					style.bg_stroke);
+				response.clicked()
+			}
+
 			ui.style_mut().spacing.item_spacing.y = 8.0;
 			ui.columns(2, |column| {
 				for (attribute, quantity) in &mut temp_attributes {
@@ -262,33 +288,39 @@ impl Character {
 					}
 					column[0].label( egui::RichText::new(attribute.to_string()).size(16.0) );
 					column[1].horizontal(|ui| {
-						for num in 1..=*quantity {
-							let (rect, response) = ui.allocate_at_least(egui::vec2(24.0, 16.0), egui::Sense::click());
-							let style = ui.style().visuals.widgets.hovered;
-							ui.painter().rect(
-								rect,
-								style.rounding,
-								match response.hovered() && num == *quantity {
-									false => style.bg_fill,
-									true => egui::Color32::RED,
-								},
-								style.bg_stroke);
-								if response.hovered() && response.clicked() && num == *quantity {
-									*quantity -= 1;
-									unused_quantity += 1;
+						match attribute {
+							Attribute::Athletics => {
+								for _ in 0..self.items.item_weight() as u8 {
+									draw_box(ui, Some(egui::Color32::DARK_RED), false, None);
 								}
+								if *quantity > self.items.item_weight() as u8 + 1 {
+									for _ in 0..*quantity - 1 - self.items.item_weight() as u8 {
+										draw_box(ui, None, false, None);
+									}
+								}
+								if *quantity > self.items.item_weight() as u8 {
+									if draw_box(ui, None, false, Some(egui::Color32::RED)) {
+										*quantity -= 1;
+										unused_quantity += 1;				
+									}
+								}								
+							},
+							_ => {
+								if *quantity > 0 {
+									for _ in 0..*quantity-1 {
+										draw_box(ui, None, false, None);
+									}
+									if draw_box(ui, None, false, Some(egui::Color32::RED)) {
+										*quantity -= 1;
+										unused_quantity += 1;				
+									}
+								}
+							},
 						}
 						if unused_quantity > 0 && *quantity < 5 {
-							let (rect, response) = ui.allocate_at_least(egui::vec2(24.0, 16.0), egui::Sense::click());
-							let style = ui.style().interact(&response);
-							ui.painter().rect(
-								rect,
-								style.rounding,
-								style.bg_fill,
-								style.bg_stroke);
-							if response.clicked() {
+							if draw_box(ui, None, true, None) {
 								*quantity += 1;
-								unused_quantity -= 1;
+								unused_quantity -= 1;		
 							}
 						}
 						// Keep values inline if nothing would be rendered
@@ -332,21 +364,92 @@ impl Character {
 		});
 	}
 
-	fn show_items(&self, ui: &mut egui::Ui) {
+	fn show_items(&mut self, ui: &mut egui::Ui, details: &mut CharacterSheetDetails) {
+		if self.items.clear_unused() {
+			details.item_selection = None
+		}
+		let mut selected_item : Option<items::Item> = None;
+
+		let small_item_header = if self.items.small_item_count() == 0 {
+			"No Small Items"
+		} else {
+			"Small Items"
+		};
 		ui.horizontal(|ui| {
-			ui.add_space(60.0);
+			ui.add_space(30.0);
 			ui.with_layout(
-				egui::Layout::right_to_left(egui::Align::Center),
+				egui::Layout::right_to_left(egui::Align::Max),
 				|ui| {
-					ui.add_space(10.0);
-					ui.add_sized(egui::vec2(50.0, 0.0), egui::Button::new("Update"));
+					if self.items.small_item_count() < 4 && details.item_selection.is_none() {
+						if ui.add_sized(egui::vec2(30.0, 20.0), egui::Button::new("Add")).clicked() {
+							details.item_selection = Some(items::small_requisition_items());
+						}
+					} else {
+						ui.add_space(30.0);
+					}
+					ui.vertical_centered(|ui| {
+						ui.label(egui::RichText::new(small_item_header).size(24.0));
+					});
+			});	
+		});
+		ui.separator();
+
+		ui.vertical(|ui| {
+			self.items.show_items(ui, items::Weight::Small);
+			if let Some(items) = &mut details.item_selection {
+				if let Some(item) = items.show_items_selectable(ui, items::Weight::Small) {
+					selected_item = Some(item);
+				};
+			}
+		});
+		
+		// Items with weight
+		let mut max_weight: usize = 1;
+		if let Some((_, quantity)) = &self.attributes.iter().find(|(att, _)| att == &Attribute::Athletics) {
+			max_weight += *quantity as usize;
+		}
+
+		ui.horizontal(|ui| {
+			ui.add_space(30.0);
+			ui.with_layout(
+				egui::Layout::right_to_left(egui::Align::Max),
+				|ui| {
+					if self.items.item_weight() + 1 < max_weight && details.item_selection.is_none() {
+						if ui.add_sized(egui::vec2(30.0, 20.0), egui::Button::new("Add")).clicked() {
+							let mut valid_items = items::normal_requisition_items();
+							if self.items.item_weight() + 2 < max_weight {
+								valid_items.add_item_list(items::heavy_requisition_items());
+							}
+							details.item_selection = Some(valid_items);
+						}
+					} else {
+						ui.add_space(30.0);
+					}
 					ui.vertical_centered(|ui| {
 						ui.label(egui::RichText::new("Items").size(24.0));
 					});
-			});
+			});	
 		});
 		ui.separator();
-		self.items.show(ui);
+
+		ui.vertical(|ui| {
+			self.items.show_items(ui, items::Weight::Normal);
+			self.items.show_items(ui, items::Weight::Heavy);
+			if let Some(items) = &mut details.item_selection {
+				if let Some(item) = items.show_items_selectable(ui, items::Weight::Normal) {
+					selected_item = Some(item);
+				};
+				if let Some(item) = items.show_items_selectable(ui, items::Weight::Heavy) {
+					selected_item = Some(item);
+				};
+			}
+		});
+
+		// If item chosen then update
+		if let Some(item) = selected_item {
+			self.items.add_item(item);
+			details.item_selection = None
+		}
 	}
 
 	pub fn update_picture(&mut self, ctx: &egui::Context, file_raw: Vec<u8>) {

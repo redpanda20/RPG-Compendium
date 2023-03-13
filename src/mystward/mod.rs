@@ -9,6 +9,6 @@ pub struct Content {
 pub fn new(ctx: &egui::Context) -> Content {
 	Content {
 		_all_spells: spells::get_all_spells(ctx),
-		requisition_items: character::items::load_requisition_items()
+		requisition_items: character::items::all_requisition_items()
 	}
 }

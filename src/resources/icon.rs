@@ -11,7 +11,7 @@ fn load_bitmap(bytes: Vec<u8>) -> egui::ColorImage {
 		let size = [image.width() as _, image.height() as _];
 		let image_buffer = image.to_rgba8();
 		let pixels = image_buffer.as_flat_samples();
-		egui::ColorImage::from_rgb(size, pixels.as_slice())
+		egui::ColorImage::from_rgba_unmultiplied(size, pixels.as_slice())
 	} else {
 		egui::ColorImage::new([24, 24], egui::Color32::RED)
 	};
@@ -25,7 +25,7 @@ pub fn from_png_constant(img_bytes: Vec<u8>, ctx: &egui::Context) -> Icon {
 		image: texture.id(),
 		alt_image: None }
 }
-pub fn from_png_responsive(light_mode_bytes: Vec<u8>, dark_mode_bytes: Vec<u8>, ctx: &egui::Context) -> Icon {
+pub fn from_png_responsive(dark_mode_bytes: Vec<u8>, light_mode_bytes: Vec<u8>, ctx: &egui::Context) -> Icon {
 	
 	let light_mode = ctx.load_texture("light_icon", load_bitmap(light_mode_bytes), Default::default());
 	let dark_mode = ctx.load_texture("dark_icon", load_bitmap(dark_mode_bytes), Default::default());
