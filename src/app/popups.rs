@@ -5,7 +5,8 @@ pub enum Popup {
 	LogIn(UserDetails),
 	CreateAccount(UserDetails),
 	ViewAccount,
-	CreateCharacter(CreateCharacterDetails)
+	CreateCharacter(CreateCharacterDetails),
+	AdvanceCharacter(CharacterAdvanceDetails)
 }
 impl Default for Popup {
     fn default() -> Self {
@@ -368,4 +369,170 @@ pub fn show_create_character(parent: &mut super::App, ctx: &egui::Context) -> (b
 	}
 
 	return (created_character, response)
+}
+
+pub struct CharacterAdvanceDetails {
+	pub selected_advance: Option<character::Advance>
+}
+impl Default for CharacterAdvanceDetails {
+	fn default() -> Self {
+		Self { selected_advance: None }
+	}
+}
+pub fn show_advance_character(parent: &mut super::App, ctx: &egui::Context) -> bool {
+	let Popup::AdvanceCharacter(details) = &mut parent.current_popup else {
+		return false;
+	};
+
+	let is_window_open: &mut bool = &mut true;
+	let mut should_continue = false;
+
+	egui::Window::new("Level Up Character")
+	.anchor(
+		egui::Align2::CENTER_CENTER,
+		egui::vec2(0.0, 0.0))
+	.open(is_window_open)
+	.auto_sized()
+	.collapsible(false)
+	.show(ctx, |ui| {
+		let width = ui.available_width().clamp(300.0, 1000.0);
+		ui.set_max_width(width);
+
+		let mut col_index: usize = 0;
+		let content_size = egui::vec2(300.0, 200.0);
+
+		let grid_width = ((width - 100.0) / content_size.x) as usize;
+
+		ui.horizontal(|ui| {
+			ui.add_space((ui.available_width() - grid_width as f32 * content_size.x - (grid_width - 1) as f32 * 10.0 ) / 2.0 );
+
+			egui::Grid::new("Advance options")
+				.max_col_width(content_size.x)
+				.spacing(egui::vec2(10.0, 10.0))
+				.show(ui, |ui| {
+
+				for advance in character::Advance::all_advances() {
+					
+					let res = if let Some(selected) = &mut details.selected_advance {
+						if match (advance, *selected) {
+								(character::Advance::Other, character::Advance::Other) => true,
+								(character::Advance::TrainWildMagic, character::Advance::TrainWildMagic) => true,
+								(character::Advance::TrainMagicFaeSylviel, character::Advance::TrainMagicFaeSylviel) => true,
+								(character::Advance::TrainMartial(_), character::Advance::TrainMartial(_)) => true,
+								(character::Advance::Study(_), character::Advance::Study(_)) => true,
+								(character::Advance::Tame(_), character::Advance::Tame(_)) => true,
+								_ => false,
+						} {
+							selected.show(ui, content_size)
+						} else {
+							advance.show_preview(ui, content_size)
+						}
+					} else {
+						advance.show_preview(ui, content_size)
+					};
+
+					if res.clicked() {
+						details.selected_advance = Some(advance);
+					}
+					col_index += 1;
+					if col_index >= grid_width {
+						col_index = 0;
+						ui.end_row();
+					}
+				}
+			});
+
+		});
+
+		ui.vertical_centered(|ui| {
+			let mut enabled = false;
+			if let Some(advance) = &details.selected_advance {
+				enabled = match advance {
+					character::Advance::Other => true,
+					character::Advance::TrainMagicFaeSylviel => true,
+					character::Advance::TrainWildMagic => true,
+					character::Advance::TrainMartial(option) => option.is_some(),
+					character::Advance::Study(option) => option.is_some(),
+					character::Advance::Tame(option) => option.is_some(),
+				};
+				let mut text = String::from("Currently selected: ");
+				text += advance.to_string().as_str();
+				ui.label(text);
+			}
+			should_continue = ui.add_enabled(
+				enabled,
+				egui::Button::new("Confirm"))
+				.clicked();
+		})
+	});
+
+	if should_continue {
+		if let Some(character) = parent.current_user.get_active_character() {
+			if let Some(advance) = details.selected_advance {
+				match advance {
+					character::Advance::Other => (),
+					character::Advance::TrainWildMagic => {
+						character.traits.push(character::traits::wild_magic())
+					},
+					character::Advance::TrainMagicFaeSylviel => {
+						character.traits.push(character::traits::fae_magic_sylviel())
+					},
+					character::Advance::TrainMartial(martial_skill) => {
+						if let Some(martial_skill) = martial_skill {
+							let char_trait = match martial_skill {
+								character::advances::MartialTrait::DanceOfArrows => character::traits::martial_dance_of_arrows(),
+								character::advances::MartialTrait::DanceOfBlades => character::traits::martial_dance_of_blades(),
+								character::advances::MartialTrait::DanceOfBlood => {
+									for (att, quantity) in &mut character.attributes {
+										if att == &character::Attribute::FirstAid {
+											*quantity += 1;
+											break;
+										}
+									}					
+									character::traits::martial_dance_of_blood()
+								},
+							};
+							character.traits.push(char_trait)
+						} else {
+							return false
+						}
+					},			
+					character::Advance::Study(lore) => {
+						if let Some(lore) = lore {
+							let attribute = character::Attribute::Lore(lore);
+							character.attributes.push((attribute, 1));
+						} else {
+							// Interupt as state is invalid
+							return false
+						}},
+					character::Advance::Tame(beast) => {
+						if let Some(beast) = beast {
+							let char_trait = match beast {
+								character::advances::Beast::StarPhoenix => character::traits::tamed_phoenix(),
+								character::advances::Beast::ShadowPuma => character::traits::tamed_puma(),
+								character::advances::Beast::Kirin => character::traits::tamed_kirin(),
+							};
+							character.traits.push(char_trait);
+						} else {
+							return false
+						}
+					}
+				}
+
+				// Add an unused attribute
+				for (att, quantity) in &mut character.attributes {
+					if att == &character::Attribute::Unused {
+						*quantity += 1;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	if !*is_window_open || should_continue {
+		parent.current_popup = Popup::None
+	}
+
+	return false
 }

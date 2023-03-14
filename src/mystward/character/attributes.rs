@@ -24,7 +24,7 @@ pub enum Race {
 	InkurtAnami,
 	Rova
 }
-#[derive(Eq, PartialEq, Clone, Hash)]
+#[derive(Eq, PartialEq, Clone, Copy, Hash)]
 #[derive(serde::Serialize, serde::Deserialize)]
 pub enum Lore {
 	Fables,

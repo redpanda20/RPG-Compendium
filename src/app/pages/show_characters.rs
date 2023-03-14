@@ -143,7 +143,19 @@ pub fn show_character(parent: &mut App, ctx: &egui::Context, _frame: &mut eframe
 				
 			ui.horizontal(|ui| {
 				ui.add_space(spacing);
-				character.show(&mut parent.loader, details, ui, ctx, width);
+				let request = character.show( ui, ctx, details, width);
+				match request {
+					character::Request::None => (),
+					character::Request::UpdatePicture => {
+						parent.loader.file_dialog(loader::FileUsage::CharacterPicture);
+					},
+					character::Request::PopupLevelUp => {
+						match parent.current_popup {
+							popups::Popup::None => parent.current_popup = popups::Popup::AdvanceCharacter(Default::default()),
+							_ => (),
+						}
+					},
+				}
 			});
 
 			ui.add_space(20.0);

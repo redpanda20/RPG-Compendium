@@ -1,13 +1,15 @@
-use crate::resources::{image, icon, defines, loader};
+use crate::resources::{image, icon, defines};
 
 pub mod racial_archetypes;
 pub mod attributes;
 pub mod items;
 pub mod traits;
+pub mod advances;
 
 pub use racial_archetypes::*;
 pub use attributes::Attribute;
 pub use traits::Trait;
+pub use advances::Advance;
 
 use super::spells;
 
@@ -46,7 +48,11 @@ impl Default for CharacterSheetDetails {
 		Self { name: None, biography: None, appearance: None, item_selection: None }
 	}
 }
-
+pub enum Request {
+	None,
+	UpdatePicture,
+	PopupLevelUp
+}
 impl Character {
 	pub fn new(name: String, archetype: RacialArchetype) -> Self {
 
@@ -76,12 +82,18 @@ impl Character {
 			notes: String::new() }
 	}
 
-	pub fn show(&mut self, loader: &mut loader::Loader, details: &mut CharacterSheetDetails, ui: &mut egui::Ui, ctx: &egui::Context, width: f32) {
+	pub fn show(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, details: &mut CharacterSheetDetails, width: f32) -> Request {
+		let mut request = Request::None;
 		ui.vertical(|ui| {
 			ui.set_width(width);
 			ui.add_space(10.0);
 
-			self.show_biography(loader, details, ui, ctx, width);
+			let bio_request = self.show_biography(ui, ctx, details, width);
+			match bio_request {
+				Request::None => (),
+				Request::UpdatePicture => request = Request::UpdatePicture,
+				Request::PopupLevelUp => request = Request::PopupLevelUp,
+			}
 
 			ui.add_space(20.0);
 		
@@ -101,9 +113,11 @@ impl Character {
 				}
 			});			
 		});
+		return request;
 	}
 
-	fn show_biography(&mut self, loader: &mut loader::Loader, details: &mut CharacterSheetDetails, ui: &mut egui::Ui, ctx: &egui::Context, width: f32) {
+	fn show_biography(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, details: &mut CharacterSheetDetails, width: f32) -> Request {
+		let mut request = Request::None;
 		let edit_icon = icon::Icon::from_svg_responsive(defines::EDIT.to_vec(), ctx).get(ctx);
 
 		let vertical_layout = width < 800.0;
@@ -137,6 +151,23 @@ impl Character {
 					}
 					details.name = None;
 				};
+
+				ui.with_layout(
+					egui::Layout::right_to_left(egui::Align::Center),
+					|ui| {
+						let (id, size) = icon::from_png_responsive(
+							defines::DOUBLE_UP_LIGHT.to_vec(),
+							defines::DOUBLE_UP.to_vec(),
+							ctx).get(ctx);
+						if ui.add(
+							egui::Button::image_and_text(
+								id,
+								size,
+								"Level Up")
+						).clicked() {
+							request = Request::PopupLevelUp;
+						};
+					})
 			});
 
 	// Archetype
@@ -155,15 +186,19 @@ impl Character {
 			},
 			|ui| {
 
+				let mut update_picture = false;
 				if vertical_layout {
 					ui.vertical_centered(|ui| {
-						self.get_picture(loader, ctx, ui);
+						update_picture = self.get_picture(ctx, ui);
 					});
 				} else {
 					ui.horizontal_centered(|ui| {
-						self.get_picture(loader, ctx, ui);
+						update_picture = self.get_picture(ctx, ui);
 					});
 				} 
+				if update_picture {
+					request = Request::UpdatePicture;
+				}
 				
 				ui.add_space(10.0);
 
@@ -240,6 +275,7 @@ impl Character {
 				});
 			});
 		});
+		return request;
 	}
 
 	fn show_attributes(&mut self, ui: &mut egui::Ui) {
@@ -487,14 +523,13 @@ impl Character {
 		self.character_info.image_storage = Some(file_raw.clone());
 	}
 
-	pub fn get_picture(&mut self, loader: &mut loader::Loader, ctx: &egui::Context, ui: &mut egui::Ui) {
+	pub fn get_picture(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) -> bool {
 		let (id, size) = &self.character_info.profile_image.get(ctx);
 
-		if ui.add(
+		ui.add(
 			egui::ImageButton::new(*id, *size)
-		).clicked() {
-			loader.file_dialog(loader::FileUsage::CharacterPicture)
-		};
+		)
+		.clicked()
 	}
 
 	pub fn get_picture_static(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {

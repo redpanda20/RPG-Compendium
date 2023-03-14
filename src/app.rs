@@ -7,7 +7,7 @@ use crate::shortcuts;
 use crate::user;
 
 mod pages;
-mod popups;
+pub mod popups;
 mod menubar;
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -127,6 +127,9 @@ impl eframe::App for App {
 			},
 			popups::Popup::CreateCharacter(_) => {
 				popups::show_create_character(self, ctx);
+			},
+			popups::Popup::AdvanceCharacter(_) => {
+				popups::show_advance_character(self, ctx);
 			},
 			popups::Popup::None => (),
 		};

@@ -5,8 +5,9 @@ use super::defines;
 use super::spells;
 use super::character;
 
-use super::popups;
 use super::App;
+use super::popups;
+use super::loader;
 
 pub mod compendium;
 pub use compendium::show_spells;

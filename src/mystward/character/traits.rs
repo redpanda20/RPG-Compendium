@@ -76,3 +76,63 @@ pub fn from_archetype(archetype: &super::RacialArchetype) -> Vec<Trait> {
 	}
 	traits
 }
+pub fn wild_magic() -> Trait {
+	Trait {
+		title: String::from("Wild Magic"),
+		text: String::new()
+	}
+}
+pub fn fae_magic_pixie() -> Trait {
+	Trait {
+		title: String::from("Fae magic (Pixie)"),
+		text: String::new()
+	}
+}
+pub fn fae_magic_sylviel() -> Trait {
+	Trait {
+		title: String::from("Fae magic (Sylviel)"),
+		text: String::new()
+	}
+}
+pub fn fae_magic_forge_sprite() -> Trait {
+	Trait {
+		title: String::from("Fae magic (Forge Sprite)"),
+		text: String::new()
+	}
+}
+pub fn tamed_phoenix() -> Trait {
+	Trait {
+		title: String::from("Tamed Star Phoenix"),
+		text: String::from("As well as an excellent flight and sight, a Star Phoenix can launch its feathers as medium range pure energy attacks with a timing of 6. After 4 such attacks it will need to rest until the next misison.\nIt refuses to fly in direct sunlight.")
+	}
+}
+pub fn tamed_puma() -> Trait {
+	Trait {
+		title: String::from("Tamed Shadow Puma"),
+		text: String::from("Small for a big cat but still as dangerous as a wolfdog. Shadow Pumas are the undisputed masters of stealth.\nSo good that they will give one close range ally an extra stealth die.\nYou must carry a small item box of fine snacks to appease this picky eater.")
+	}
+}
+pub fn tamed_kirin() -> Trait {
+	Trait {
+		title: String::from("Tamed Kirin"),
+		text: String::from("A goat sized, scaly unicorn chimera. Kirin refuse to do anything useful except lend their power.\nRoll a D6 to randomly select a concept (excluding entropy), the Kirin invokes this concept which may be used by any arcane caster in close range.Once used it then invokes a new random concept at the start of the next round. this continues until it has invoked concepts 4 times in a mission.\nIt will refuse to share its magic while dirty or wet.")
+	}
+}
+pub fn martial_dance_of_arrows() -> Trait {
+	Trait {
+		title: String::from("Dance of Arrows"),
+		text: String::from("When dual wielding melee weapons you may spend 1 SD to attack with both.\nYou may use this effect multiple times per turn.")
+	}
+}
+pub fn martial_dance_of_blades() -> Trait {
+	Trait {
+		title: String::from("Dance of Blades"),
+		text: String::from("On any turn you declare movement. Gain a 5+ evasion save against all attacks.\nDoes not stack with cover saves.")
+	}
+}
+pub fn martial_dance_of_blood() -> Trait {
+	Trait {
+		title: String::from("Dance of Blood"),
+		text: String::from("You gain the following option on any attack:\n	-1 SD: Deal one extra damage to a living unarmoured target. This applies if you would ignore the armour due to accuracy or armour piercing.\n+1 First Aid")
+	}
+}

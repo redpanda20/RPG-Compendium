@@ -45,3 +45,6 @@ pub const SELECT_IMAGE_LIGHT: &[u8] = include_bytes!("../../assets/image_select_
 
 pub const CLOSE: &[u8] = include_bytes!("../../assets/close.png");
 pub const CLOSE_LIGHT: &[u8] = include_bytes!("../../assets/close_light.png");
+
+pub const DOUBLE_UP: &[u8] = include_bytes!("../../assets/double_up.png");
+pub const DOUBLE_UP_LIGHT: &[u8] = include_bytes!("../../assets/double_up_light.png");
