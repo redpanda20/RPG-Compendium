@@ -429,7 +429,7 @@ impl Character {
 			ui.with_layout(
 				egui::Layout::right_to_left(egui::Align::Max),
 				|ui| {
-					if self.items.small_item_count() < 4 && details.item_selection.is_none() {
+					if self.items.small_item_count() < self.items.small_item_capacity() && details.item_selection.is_none() {
 						if ui.add_sized(egui::vec2(30.0, 20.0), egui::Button::new("Add")).clicked() {
 							details.item_selection = Some(items::small_requisition_items());
 						}

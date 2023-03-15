@@ -40,11 +40,20 @@ impl Item {
 					.font(egui::FontId::proportional(16.0))
 					.show(ui);
 
-				if let Some(text) = &self.effect {
-					let mut effect = text.as_str();
-					egui::TextEdit::multiline(&mut effect)
+				if self.name == "Miscellaneous".to_string() {
+					if let Some(text) = &mut self.effect {
+						egui::TextEdit::multiline(text)
+						.frame(false)
 						.desired_rows(1)
 						.show(ui);
+					}
+				} else {
+					if let Some(text) = &self.effect {
+						let mut effect = text.as_str();
+						egui::TextEdit::multiline(&mut effect)
+							.desired_rows(1)
+							.show(ui);
+					}	
 				}
 				if let Some(text) = &self.flavour_text {
 					ui.label(egui::RichText::new(text).italics());
@@ -140,6 +149,23 @@ impl ItemList {
 			}
 		});
 		return None
+	}
+
+	pub fn small_item_capacity(&self) -> usize {
+		let mut capacity: usize = 4;
+
+		for item in &self.item_list {
+			if !item.equipped {
+				continue;
+			}
+			if item.name == "Pack/Satchel".to_string() {
+				capacity += 6;
+			}
+			if item.name == "Belt of pockets".to_string() {
+				capacity += 4;
+			}
+		}
+		return capacity
 	}
 
 	pub fn small_item_count(&self) -> usize {
@@ -238,6 +264,13 @@ pub fn small_requisition_items() -> ItemList {
 			weight: Weight::Small,
 			effect: Some(String::from("Creates a dimmable light or spotlight")),
 			..Default::default() }
+		,
+		Item {
+			name: String::from("Miscellaneous"),
+			weight: Weight::Small,
+			effect: Some(String::from("Some other item. This text is editable")),
+			..Default::default() }
+		
 	]}
 }
 pub fn normal_requisition_items() -> ItemList {
