@@ -314,6 +314,12 @@ pub fn normal_requisition_items() -> ItemList {
 			name: String::from("Belt of pockets"),
 			effect: Some(String::from("Storage for 4 Small Items\nCannot be quickly dropped")),
 			..Default::default() }
+		,
+		Item {
+			name: String::from("Miscellaneous"),
+			effect: Some(String::from("An item that isn't otherwise available. This text is editable")),
+			..Default::default() }
+
 	]}
 }
 pub fn heavy_requisition_items() -> ItemList {
