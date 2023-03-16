@@ -21,7 +21,7 @@ pub fn from_archetype(archetype: &super::RacialArchetype) -> Vec<Trait> {
 			super::ByvineClass::Base => (),
 			super::ByvineClass::Goliath => traits.push(Trait::new("Goliath", "Power attacks don’t cost Skill Dice, heavy gear counts as normal.\nYour horns are a full melee weapon with the option: 0SD: Launch a character into medium range.")),
 			super::ByvineClass::RovanKnight => (),
-			super::ByvineClass::Blessed => (),
+			super::ByvineClass::Blessed => traits.push(fae_magic_pixie()),
 		}},
 		super::RacialArchetype::Clank(class) => {
 			traits.push(Trait::new("Unnatural Engineer", "Can be healed with Engineering and Magic but not First-aid. You don’t bleed out when down."));
@@ -37,7 +37,7 @@ pub fn from_archetype(archetype: &super::RacialArchetype) -> Vec<Trait> {
 				super::HumanClass::Base => (),
 				super::HumanClass::Pathfinder => traits.push(Trait::new("Pathfinder", "You have a highly trained animal companion, typically a Wolfdog or Hawk. Suitable for both combat and scouting. This animal has plot armour.")),
 				super::HumanClass::Rifleman => (),
-				super::HumanClass::Gambler => traits.push(Trait::new("Gambler", "You may use Wild Magic for playing games")),
+				super::HumanClass::Gambler => traits.extend(vec![Trait::new("Gambler", "You may use Wild Magic for playing games"), wild_magic()]),
 			}
 		},
 		super::RacialArchetype::MoonElf(class) => {
@@ -46,7 +46,7 @@ pub fn from_archetype(archetype: &super::RacialArchetype) -> Vec<Trait> {
 				super::MoonElfClass::Base => (),
 				super::MoonElfClass::CerudantRanger => (),
 				super::MoonElfClass::StarMage => (),
-				super::MoonElfClass::MoonCleric => (),
+				super::MoonElfClass::MoonCleric => traits.push(fae_magic_sylviel()),
 			}
 		},
 		super::RacialArchetype::MystFae(class) => {
@@ -55,7 +55,7 @@ pub fn from_archetype(archetype: &super::RacialArchetype) -> Vec<Trait> {
 				super::MystFaeClass::Base => (),
 				super::MystFaeClass::WhispersOfWar => traits.push(Trait::new("Whispers of War", "You have a additional Action Die that may only be used to parry or block")),
 				super::MystFaeClass::WhispersOfTheUnseen => traits.push(Trait::new("Whispers of the Unseen", "You can ask the GM for random fact about a place, creature, or object you’ve encountered that your character couldn't have known otherwise.")),
-				super::MystFaeClass::WhispersOfTheLeylines => (),
+				super::MystFaeClass::WhispersOfTheLeylines => traits.push(wild_magic()),
 			}
 		},
 		super::RacialArchetype::Treekin(class) => {
@@ -67,11 +67,17 @@ pub fn from_archetype(archetype: &super::RacialArchetype) -> Vec<Trait> {
 				super::TreekinClass::GrowthMage => (),
 			}
 		},
-		super::RacialArchetype::Wyvren(_) => {
+		super::RacialArchetype::Wyvren(class) => {
 			traits.extend(vec![
 				Trait::new("Wings", "You may glide down to lower levels but you do not gain a free normal gear and may not use heavy gear due to your small size."),
 				Trait::new("Chaotic Inspiration", "When you create or cast something you may choose to make it more potent at the cost of making it more dangerous to use or more unpredictable.")
 			]);
+			match class {
+				super::WyvrenClass::Base => (),
+				super::WyvrenClass::RecklessEngineer => (),
+				super::WyvrenClass::ForgeHeart => traits.push(fae_magic_forge_sprite()),
+				super::WyvrenClass::WildfireMage => (),
+			}
 		},
 	}
 	traits
