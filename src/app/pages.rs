@@ -26,16 +26,62 @@ pub enum Page {
 	CharacterSheet(character::CharacterSheetDetails)
 }
 pub fn show_home(parent: &mut App, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-	egui::CentralPanel::default().show(ctx, |ui| {
-		ui.label("This is the main page");
+	let booklet = icon::from_png_responsive(
+		defines::COMPENDIUM_LIGHT.to_vec(),
+		defines::COMPENDIUM.to_vec(),
+		ctx)
+		.get(ctx);
+	let characters = icon::from_png_responsive(
+		defines::CHARACTERS_LIGHT.to_vec(),
+		defines::CHARACTERS.to_vec(),
+		ctx)
+		.get(ctx);
 
-		let booklet = icon::Icon::from_svg_constant(
-			defines::BOOKLET.to_vec(), ctx)
-			.get(ctx);
-		if ui.add(
-			egui::Button::image_and_text(booklet.0, booklet.1, "Compendium")	
-		).clicked() {
-			parent.current_page = Page::Compendium(spells::SpellType::None)
-		};
+	let mut open_compendium = false;
+	let mut open_characters = false;
+
+	egui::CentralPanel::default().show(ctx, |ui| {
+		if ui.available_width() > 500.0 {
+
+			ui.columns(3, |column| {
+
+				column[0].add_space(100.0);
+
+				open_compendium = column[0].add(
+					egui::Button::image_and_text(
+						booklet.0,
+						booklet.1,
+						egui::RichText::new("Compendium").size(16.0))	
+							.min_size(egui::vec2(column[0].available_width(), 30.0))
+				).clicked();
+
+				column[0].add_space(50.0);
+
+				open_characters = column[0].add(
+					egui::Button::image_and_text(
+						characters.0,
+						characters.1,
+						egui::RichText::new("Characters").size(16.0))	
+							.min_size(egui::vec2(column[0].available_width(), 30.0))
+				).clicked();
+
+			});
+		} else {		
+			open_compendium =  ui.add(
+				egui::Button::image_and_text(booklet.0, booklet.1, "Compendium")	
+			).clicked();
+
+			open_characters =  ui.add(
+				egui::Button::image_and_text(characters.0, characters.1, "Characters")	
+			).clicked();
+
+		}
 	});
+
+	if open_compendium {
+		parent.current_page = Page::Compendium(spells::SpellType::None);
+	}
+	if open_characters {
+		parent.current_page = Page::AllCharacters;
+	}
 }

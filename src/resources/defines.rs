@@ -48,3 +48,9 @@ pub const CLOSE_LIGHT: &[u8] = include_bytes!("../../assets/close_light.png");
 
 pub const DOUBLE_UP: &[u8] = include_bytes!("../../assets/double_up.png");
 pub const DOUBLE_UP_LIGHT: &[u8] = include_bytes!("../../assets/double_up_light.png");
+
+pub const COMPENDIUM: &[u8] = include_bytes!("../../assets/compendium.png");
+pub const COMPENDIUM_LIGHT: &[u8] = include_bytes!("../../assets/compendium_light.png");
+
+pub const CHARACTERS: &[u8] = include_bytes!("../../assets/characters.png");
+pub const CHARACTERS_LIGHT: &[u8] = include_bytes!("../../assets/characters_light.png");
