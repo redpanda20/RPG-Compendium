@@ -343,7 +343,7 @@ impl Character {
 									draw_box(ui, Some(egui::Color32::DARK_RED), false, None);
 								}
 								if *quantity > item_weight as u8 + 1 {
-									for _ in 0..*quantity - 1 - self.items.item_weight() as u8 {
+									for _ in 0..*quantity - self.items.item_weight() as u8 {
 										draw_box(ui, None, false, None);
 									}
 								}
