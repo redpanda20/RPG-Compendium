@@ -170,10 +170,10 @@ impl Advance {
 						if let Some(martial_trait) = martial_trait {
 							ui.label(
 							match martial_trait {
-								MartialTrait::DanceOfArrows => traits::martial_dance_of_arrows().text,
-								MartialTrait::DanceOfBlades => traits::martial_dance_of_blades().text,
-								MartialTrait::DanceOfBlood => traits::martial_dance_of_blood().text,
-							});
+								MartialTrait::DanceOfArrows => traits::get_trait(traits::NamedTrait::MartialDanceOfArrows),
+								MartialTrait::DanceOfBlades => traits::get_trait(traits::NamedTrait::MartialDanceOfBlades),
+								MartialTrait::DanceOfBlood => traits::get_trait(traits::NamedTrait::MartialDanceOfBlood),
+							}.text);
 						};
 					}),
 					Advance::Study(_) => ui.vertical(|ui| {
@@ -209,10 +209,10 @@ impl Advance {
 						if let Some(beast) = beast {
 							ui.label(
 							match beast {
-								Beast::StarPhoenix => traits::tamed_phoenix().text,
-								Beast::ShadowPuma => traits::tamed_puma().text,
-								Beast::Kirin => traits::tamed_kirin().text,
-							});
+								Beast::StarPhoenix => traits::get_trait(traits::NamedTrait::TamedPhoenix),
+								Beast::ShadowPuma => traits::get_trait(traits::NamedTrait::TamedPhoenix),
+								Beast::Kirin => traits::get_trait(traits::NamedTrait::TamedKirin),
+							}.text);
 						};
 					}),
 					// _ => ui.vertical_centered(|ui| {

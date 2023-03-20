@@ -1,3 +1,5 @@
+const TRAITS_JSON: &str = include_str!("traits.json");
+
 #[derive(Clone)]
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct Trait {
@@ -21,7 +23,7 @@ pub fn from_archetype(archetype: &super::RacialArchetype) -> Vec<Trait> {
 			super::ByvineClass::Base => (),
 			super::ByvineClass::Goliath => traits.push(Trait::new("Goliath", "Power attacks don’t cost Skill Dice, heavy gear counts as normal.\nYour horns are a full melee weapon with the option: 0SD: Launch a character into medium range.")),
 			super::ByvineClass::RovanKnight => (),
-			super::ByvineClass::Blessed => traits.push(fae_magic_pixie()),
+			super::ByvineClass::Blessed => traits.push(get_trait(NamedTrait::FaeMagicPixie)),
 		}},
 		super::RacialArchetype::Clank(class) => {
 			traits.push(Trait::new("Unnatural Engineer", "Can be healed with Engineering and Magic but not First-aid. You don’t bleed out when down."));
@@ -37,7 +39,7 @@ pub fn from_archetype(archetype: &super::RacialArchetype) -> Vec<Trait> {
 				super::HumanClass::Base => (),
 				super::HumanClass::Pathfinder => traits.push(Trait::new("Pathfinder", "You have a highly trained animal companion, typically a Wolfdog or Hawk. Suitable for both combat and scouting. This animal has plot armour.")),
 				super::HumanClass::Rifleman => (),
-				super::HumanClass::Gambler => traits.extend(vec![Trait::new("Gambler", "You may use Wild Magic for playing games"), wild_magic()]),
+				super::HumanClass::Gambler => traits.extend(vec![Trait::new("Gambler", "You may use Wild Magic for playing gambling"), get_trait(NamedTrait::WildMagic)]),
 			}
 		},
 		super::RacialArchetype::MoonElf(class) => {
@@ -46,7 +48,7 @@ pub fn from_archetype(archetype: &super::RacialArchetype) -> Vec<Trait> {
 				super::MoonElfClass::Base => (),
 				super::MoonElfClass::CerudantRanger => (),
 				super::MoonElfClass::StarMage => (),
-				super::MoonElfClass::MoonCleric => traits.push(fae_magic_sylviel()),
+				super::MoonElfClass::MoonCleric => traits.push(get_trait(NamedTrait::FaeMagicSylviel)),
 			}
 		},
 		super::RacialArchetype::MystFae(class) => {
@@ -55,7 +57,7 @@ pub fn from_archetype(archetype: &super::RacialArchetype) -> Vec<Trait> {
 				super::MystFaeClass::Base => (),
 				super::MystFaeClass::WhispersOfWar => traits.push(Trait::new("Whispers of War", "You have a additional Action Die that may only be used to parry or block")),
 				super::MystFaeClass::WhispersOfTheUnseen => traits.push(Trait::new("Whispers of the Unseen", "You can ask the GM for random fact about a place, creature, or object you’ve encountered that your character couldn't have known otherwise.")),
-				super::MystFaeClass::WhispersOfTheLeylines => traits.push(wild_magic()),
+				super::MystFaeClass::WhispersOfTheLeylines => traits.push(get_trait(NamedTrait::WildMagic)),
 			}
 		},
 		super::RacialArchetype::Treekin(class) => {
@@ -75,70 +77,38 @@ pub fn from_archetype(archetype: &super::RacialArchetype) -> Vec<Trait> {
 			match class {
 				super::WyvrenClass::Base => (),
 				super::WyvrenClass::RecklessEngineer => (),
-				super::WyvrenClass::ForgeHeart => traits.push(fae_magic_forge_sprite()),
+				super::WyvrenClass::ForgeHeart => traits.push(get_trait(NamedTrait::FaeMagicForgeSprite)),
 				super::WyvrenClass::WildfireMage => (),
 			}
 		},
 	}
 	traits
 }
-pub fn wild_magic() -> Trait {
-	Trait {
-		title: String::from("Wild Magic"),
-		text: String::new()
-	}
+pub fn get_trait(reference: NamedTrait) -> Trait {
+	let traits: Vec<Trait> = serde_json::from_str(TRAITS_JSON).unwrap();
+	let index = match reference {
+    NamedTrait::WildMagic => 0,
+    NamedTrait::FaeMagicPixie => 1,
+    NamedTrait::FaeMagicSylviel => 2,
+    NamedTrait::FaeMagicForgeSprite => 3,
+    NamedTrait::TamedPhoenix => 4,
+    NamedTrait::TamedPuma => 5,
+    NamedTrait::TamedKirin => 6,
+    NamedTrait::MartialDanceOfArrows => 7,
+    NamedTrait::MartialDanceOfBlades => 8,
+    NamedTrait::MartialDanceOfBlood => 9,
+	};
+	traits[index].clone()
 }
-pub fn fae_magic_pixie() -> Trait {
-	Trait {
-		title: String::from("Fae magic (Pixie)"),
-		text: String::new()
-	}
-}
-pub fn fae_magic_sylviel() -> Trait {
-	Trait {
-		title: String::from("Fae magic (Sylviel)"),
-		text: String::new()
-	}
-}
-pub fn fae_magic_forge_sprite() -> Trait {
-	Trait {
-		title: String::from("Fae magic (Forge Sprite)"),
-		text: String::new()
-	}
-}
-pub fn tamed_phoenix() -> Trait {
-	Trait {
-		title: String::from("Tamed Star Phoenix"),
-		text: String::from("As well as an excellent flight and sight, a Star Phoenix can launch its feathers as medium range pure energy attacks with a timing of 6. After 4 such attacks it will need to rest until the next misison.\nIt refuses to fly in direct sunlight.")
-	}
-}
-pub fn tamed_puma() -> Trait {
-	Trait {
-		title: String::from("Tamed Shadow Puma"),
-		text: String::from("Small for a big cat but still as dangerous as a wolfdog. Shadow Pumas are the undisputed masters of stealth.\nSo good that they will give one close range ally an extra stealth die.\nYou must carry a small item box of fine snacks to appease this picky eater.")
-	}
-}
-pub fn tamed_kirin() -> Trait {
-	Trait {
-		title: String::from("Tamed Kirin"),
-		text: String::from("A goat sized, scaly unicorn chimera. Kirin refuse to do anything useful except lend their power.\nRoll a D6 to randomly select a concept (excluding entropy), the Kirin invokes this concept which may be used by any arcane caster in close range.Once used it then invokes a new random concept at the start of the next round. this continues until it has invoked concepts 4 times in a mission.\nIt will refuse to share its magic while dirty or wet.")
-	}
-}
-pub fn martial_dance_of_arrows() -> Trait {
-	Trait {
-		title: String::from("Dance of Arrows"),
-		text: String::from("When dual wielding melee weapons you may spend 1 SD to attack with both.\nYou may use this effect multiple times per turn.")
-	}
-}
-pub fn martial_dance_of_blades() -> Trait {
-	Trait {
-		title: String::from("Dance of Blades"),
-		text: String::from("On any turn you declare movement. Gain a 5+ evasion save against all attacks.\nDoes not stack with cover saves.")
-	}
-}
-pub fn martial_dance_of_blood() -> Trait {
-	Trait {
-		title: String::from("Dance of Blood"),
-		text: String::from("You gain the following option on any attack:\n	-1 SD: Deal one extra damage to a living unarmoured target. This applies if you would ignore the armour due to accuracy or armour piercing.\n+1 First Aid")
-	}
+pub enum NamedTrait {
+	WildMagic,
+	FaeMagicPixie,
+	FaeMagicSylviel,
+	FaeMagicForgeSprite,
+	TamedPhoenix,
+	TamedPuma,
+	TamedKirin,
+	MartialDanceOfArrows,
+	MartialDanceOfBlades,
+	MartialDanceOfBlood
 }

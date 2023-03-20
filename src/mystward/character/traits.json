@@ -1,0 +1,42 @@
+[
+	{
+		"title" : "Wild Magic",
+		"text" : ""
+	},
+	{
+		"title" : "Fae magic (Pixie)",
+		"text" : ""	
+	},
+	{
+		"title" : "Fae magic (Sylviel)",
+		"text" : ""	
+	},
+	{
+		"title" : "Fae magic (Forge Sprite)",
+		"text" : ""	
+	},
+	{
+		"title" : "Tamed Star Phoenix",
+		"text" : "As well as an excellent flight and sight, a Star Phoenix can launch its feathers as medium range pure energy attacks with a timing of 6. After 4 such attacks it will need to rest until the next misison.\nIt refuses to fly in direct sunlight."
+	},
+	{
+		"title" : "Tamed Shadow Puma",
+		"text" : "Small for a big cat but still as dangerous as a wolfdog. Shadow Pumas are the undisputed masters of stealth.\nSo good that they will give one close range ally an extra stealth die.\nYou must carry a small item box of fine snacks to appease this picky eater."
+	},
+	{
+		"title" : "Tamed Kirin",
+		"text" : "A goat sized, scaly unicorn chimera. Kirin refuse to do anything useful except lend their power.\nRoll a D6 to randomly select a concept (excluding entropy), the Kirin invokes this concept which may be used by any arcane caster in close range.Once used it then invokes a new random concept at the start of the next round. this continues until it has invoked concepts 4 times in a mission.\nIt will refuse to share its magic while dirty or wet."
+	},
+	{
+		"title" : "Dance of Arrows",
+		"text" : "When dual wielding melee weapons you may spend 1 SD to attack with both.\nYou may use this effect multiple times per turn."
+	},
+	{
+		"title" : "Dance of Blades",
+		"text" : "On any turn you declare movement. Gain a 5+ evasion save against all attacks.\nDoes not stack with cover saves."
+	},
+	{
+		"title" : "Dance of Blood",
+		"text" : "You gain the following option on any attack:\n-1 SD: Deal one extra damage to a living unarmoured target. This applies if you would ignore the armour due to accuracy or armour piercing.\n+1 First Aid"
+	}
+]

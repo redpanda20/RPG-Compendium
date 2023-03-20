@@ -472,16 +472,16 @@ pub fn show_advance_character(parent: &mut super::App, ctx: &egui::Context) -> b
 				match advance {
 					character::Advance::Other => (),
 					character::Advance::TrainWildMagic => {
-						character.traits.push(character::traits::wild_magic())
+						character.traits.push(character::traits::get_trait(character::traits::NamedTrait::WildMagic))
 					},
 					character::Advance::TrainMagicFaeSylviel => {
-						character.traits.push(character::traits::fae_magic_sylviel())
+						character.traits.push(character::traits::get_trait(character::traits::NamedTrait::FaeMagicSylviel))
 					},
 					character::Advance::TrainMartial(martial_skill) => {
 						if let Some(martial_skill) = martial_skill {
 							let char_trait = match martial_skill {
-								character::advances::MartialTrait::DanceOfArrows => character::traits::martial_dance_of_arrows(),
-								character::advances::MartialTrait::DanceOfBlades => character::traits::martial_dance_of_blades(),
+								character::advances::MartialTrait::DanceOfArrows => character::traits::get_trait(character::traits::NamedTrait::MartialDanceOfArrows),
+								character::advances::MartialTrait::DanceOfBlades => character::traits::get_trait(character::traits::NamedTrait::MartialDanceOfBlades),
 								character::advances::MartialTrait::DanceOfBlood => {
 									for (att, quantity) in &mut character.attributes {
 										if att == &character::Attribute::FirstAid {
@@ -489,7 +489,7 @@ pub fn show_advance_character(parent: &mut super::App, ctx: &egui::Context) -> b
 											break;
 										}
 									}					
-									character::traits::martial_dance_of_blood()
+									character::traits::get_trait(character::traits::NamedTrait::MartialDanceOfBlood)
 								},
 							};
 							character.traits.push(char_trait)
@@ -508,9 +508,9 @@ pub fn show_advance_character(parent: &mut super::App, ctx: &egui::Context) -> b
 					character::Advance::Tame(beast) => {
 						if let Some(beast) = beast {
 							let char_trait = match beast {
-								character::advances::Beast::StarPhoenix => character::traits::tamed_phoenix(),
-								character::advances::Beast::ShadowPuma => character::traits::tamed_puma(),
-								character::advances::Beast::Kirin => character::traits::tamed_kirin(),
+								character::advances::Beast::StarPhoenix => character::traits::get_trait(character::traits::NamedTrait::TamedPhoenix),
+								character::advances::Beast::ShadowPuma => character::traits::get_trait(character::traits::NamedTrait::TamedPhoenix),
+								character::advances::Beast::Kirin => character::traits::get_trait(character::traits::NamedTrait::TamedKirin),
 							};
 							character.traits.push(char_trait);
 						} else {
