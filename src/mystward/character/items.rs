@@ -70,6 +70,19 @@ impl Item {
 					if ui.add(egui::ImageButton::new(id, size)).clicked() {
 						self.equipped = false;
 					};
+					if self.name == "Miscellaneous".to_string() && self.weight != Weight::Small {
+						egui::ComboBox::from_id_source(ui.next_auto_id())
+							.selected_text(match self.weight {
+								Weight::Small => unreachable!("small item"),
+								Weight::Normal => "Normal",
+								Weight::Heavy => "Heavy",
+							})
+							.show_ui(ui, |ui| {
+								ui.selectable_value(&mut self.weight, Weight::Normal, "Normal");
+								ui.selectable_value(&mut self.weight, Weight::Heavy, "Heavy");
+						});
+
+					}
 				});
 		}).response.rect;
 		ui.painter().rect_stroke(
