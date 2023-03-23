@@ -339,24 +339,22 @@ impl Character {
 					column[1].horizontal(|ui| {
 						match attribute {
 							Attribute::Athletics => {
-								for _ in 0..item_weight as u8 {
+								for _ in 0..item_weight {
 									draw_box(ui, Some(egui::Color32::DARK_RED), false, None);
 								}
-								if *quantity > item_weight as u8 + 1 {
-									for _ in 0..*quantity - self.items.item_weight() as u8 {
+								if *quantity > item_weight {
+									for _ in 0..*quantity - item_weight - 1 {
 										draw_box(ui, None, false, None);
 									}
-								}
-								if *quantity > item_weight as u8 {
 									if draw_box(ui, None, false, Some(egui::Color32::RED)) {
 										*quantity -= 1;
 										unused_quantity += 1;				
-									}
-								}								
+									}	
+								}
 							},
 							_ => {
 								if *quantity > 0 {
-									for _ in 0..*quantity-1 {
+									for _ in 0..*quantity - 1 {
 										draw_box(ui, None, false, None);
 									}
 									if draw_box(ui, None, false, Some(egui::Color32::RED)) {
